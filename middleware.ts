@@ -29,12 +29,9 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/admin-login', request.url))
     }
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-    if (!profile?.is_admin) {
+    // Use user_metadata to avoid RLS issues with anon key
+    const isAdmin = user.user_metadata?.is_admin === true
+    if (!isAdmin) {
       return NextResponse.redirect(new URL('/admin-login', request.url))
     }
   }

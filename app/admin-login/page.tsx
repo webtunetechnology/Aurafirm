@@ -32,13 +32,9 @@ export default function AdminLoginPage() {
       setLoading(false)
       return
     }
-    // Verify admin flag
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", data.user.id)
-      .single()
-    if (!profile?.is_admin) {
+    // Verify admin flag from user_metadata (avoids RLS timing issue on fresh login)
+    const isAdmin = data.user.user_metadata?.is_admin === true
+    if (!isAdmin) {
       await supabase.auth.signOut()
       setError("You do not have admin access.")
       setLoading(false)

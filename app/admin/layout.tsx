@@ -8,12 +8,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/admin-login")
 
+  // Check is_admin from user_metadata first (avoids RLS timing issues)
+  const isAdmin = user.user_metadata?.is_admin === true
+  if (!isAdmin) redirect("/admin-login")
+
+  // Fetch display name from profiles (best-effort, falls back to metadata)
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin, full_name")
+    .select("full_name")
     .eq("id", user.id)
     .single()
-  if (!profile?.is_admin) redirect("/admin-login")
 
   const { count } = await supabase
     .from("orders")
@@ -24,7 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex h-screen bg-[#faf8f6] overflow-hidden">
       <AdminSidebar pendingCount={count ?? 0} />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <AdminTopbar adminName={profile.full_name ?? "Admin User"} />
+        <AdminTopbar adminName={profile?.full_name ?? user.user_metadata?.full_name ?? "Admin User"} />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
