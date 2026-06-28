@@ -182,9 +182,9 @@ export default function CartPage() {
             <button aria-label="Wishlist" className="transition-colors hover:text-[#b86244]">
               <Heart className="h-4.5 w-4.5" />
             </button>
-            <button aria-label="Account" className="transition-colors hover:text-[#b86244]">
-              <User className="h-4.5 w-4.5" />
-            </button>
+            <Link href="/account/login" aria-label="My Account" className="transition-colors hover:text-[#b86244]">
+              <User className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </header>

@@ -288,7 +288,9 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
               )}
             </Link>
             <Heart className="h-4 w-4 cursor-pointer hover:text-[#b86244]" />
-            <User className="h-4 w-4 cursor-pointer hover:text-[#b86244]" />
+            <Link href="/account/login" aria-label="My Account" className="transition-colors hover:text-[#b86244]">
+              <User className="h-4 w-4" />
+            </Link>
           </div>
         </header>
 
@@ -417,11 +419,11 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
             ref={sliderRef}
             className="flex gap-5 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {glowHeroes.map((p, i) => (
-              <div key={i} className="flex w-[180px] shrink-0 flex-col">
+            {displayProducts.map((p) => (
+              <div key={p.id} className="flex w-[180px] shrink-0 flex-col">
                 <div className="flex h-[200px] items-center justify-center rounded-xl bg-[#fbede5] p-4">
                   <Image
-                    src={p.img || "/placeholder.svg"}
+                    src={p.image_url || "/placeholder.svg"}
                     alt={p.name}
                     width={160}
                     height={160}
@@ -429,17 +431,17 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
                   />
                 </div>
                 <p className="mt-3 text-sm text-neutral-700">{p.name}</p>
-                <p className="text-sm text-neutral-500">{`- \u20B9${p.price}`}</p>
+                <p className="text-sm text-neutral-500">{`\u20B9${p.price.toLocaleString("en-IN")}`}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <button
                     onClick={() =>
                       addItem({
-                        id: `product-${i}`,
+                        id: p.id,
                         name: p.name,
-                        subtitle: "Premium Skincare",
-                        price: parseInt(p.price.replace(",", "")),
-                        image: p.img,
-                        tags: ["Vegan", "Dermatest Tested"],
+                        subtitle: p.subtitle ?? "Premium Skincare",
+                        price: p.price,
+                        image: p.image_url ?? "",
+                        tags: p.tags ?? ["Vegan"],
                       })
                     }
                     className="rounded-full bg-[#d4855f] px-5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#c9744e]"

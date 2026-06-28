@@ -6,16 +6,15 @@ import AdminTopbar from "@/components/admin/AdminTopbar"
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect("/admin/login")
+  if (!user) redirect("/admin-login")
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("is_admin, full_name")
     .eq("id", user.id)
     .single()
-  if (!profile?.is_admin) redirect("/admin/login")
+  if (!profile?.is_admin) redirect("/admin-login")
 
-  // Pending orders count for sidebar badge
   const { count } = await supabase
     .from("orders")
     .select("id", { count: "exact" })

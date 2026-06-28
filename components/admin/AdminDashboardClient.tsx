@@ -125,7 +125,7 @@ export default function AdminDashboardClient({ stats }: { stats: Stats }) {
               />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #f0d8c8" }}
-                formatter={(v: number) => [`₹${v.toLocaleString("en-IN")}`, "Sales"]}
+                formatter={(v) => [`₹${Number(v ?? 0).toLocaleString("en-IN")}`, "Sales"]}
               />
               <Line
                 type="monotone"

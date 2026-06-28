@@ -276,7 +276,7 @@ export async function adminGetDashboardStats() {
   const supabase = await createClient()
 
   const [ordersRes, customersRes, productsRes] = await Promise.all([
-    supabase.from('orders').select('grand_total, status, created_at'),
+    supabase.from('orders').select('id, order_number, customer_name, grand_total, status, created_at'),
     supabase.from('profiles').select('id', { count: 'exact' }).eq('is_admin', false),
     supabase.from('products').select('id, name, stock', { count: 'exact' }),
   ])

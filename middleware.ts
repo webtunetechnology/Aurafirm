@@ -23,13 +23,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAdminRoute =
-    request.nextUrl.pathname.startsWith('/admin') &&
-    request.nextUrl.pathname !== '/admin/login'
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
 
   if (isAdminRoute) {
     if (!user) {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
+      return NextResponse.redirect(new URL('/admin-login', request.url))
     }
     const { data: profile } = await supabase
       .from('profiles')
@@ -37,7 +35,7 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single()
     if (!profile?.is_admin) {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
+      return NextResponse.redirect(new URL('/admin-login', request.url))
     }
   }
 
@@ -47,3 +45,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/admin/:path*', '/account/:path*'],
 }
+
+// Note: /admin-login is intentionally NOT in the matcher — it must stay unprotected.
