@@ -1,0 +1,711 @@
+'use server'
+
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+export async function getProducts() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function getProductById(id: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getProductBySlug(slug: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  if (error) return null
+  return data
+}
+
+export async function getAllProductSlugs() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('products')
+    .select('slug')
+    .not('slug', 'is', null)
+  return (data ?? []).map((r) => r.slug as string)
+}
+
+// ─── Coupons ──────────────────────────────────────────────────────────────────
+
+export async function validateCoupon(code: string, orderTotal: number) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('coupons')
+    .select('*')
+    .eq('code', code.toUpperCase())
+    .eq('is_active', true)
+    .single()
+
+  if (error || !data) return { valid: false, message: 'Invalid coupon code' }
+  if (data.expires_at && new Date(data.expires_at) < new Date())
+    return { valid: false, message: 'Coupon has expired' }
+  if (data.max_uses && data.used_count >= data.max_uses)
+    return { valid: false, message: 'Coupon usage limit reached' }
+  if (orderTotal < data.min_order_value)
+    return { valid: false, message: `Minimum order value ₹${data.min_order_value} required` }
+
+  return {
+    valid: true,
+    discount: data.discount_type === 'percentage'
+      ? Math.round((orderTotal * data.discount_value) / 100)
+      : data.discount_value,
+    message: `Coupon applied! ₹${data.discount_type === 'percentage'
+      ? Math.round((orderTotal * data.discount_value) / 100)
+      : data.discount_value} off`,
+  }
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
+export interface CreateOrderPayload {
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  billingAddress: Record<string, string>
+  shippingAddress: Record<string, string>
+  subtotal: number
+  discount: number
+  shippingCost: number
+  tax: number
+  grandTotal: number
+  couponCode?: string
+  paymentMethod: string
+  paymentStatus: string
+  razorpayOrderId?: string
+  razorpayPaymentId?: string
+  deliveryMethod: string
+  items: {
+    productId?: string
+    productName: string
+    productImage?: string
+    price: number
+    quantity: number
+    total: number
+  }[]
+}
+
+export async function createOrder(payload: CreateOrderPayload) {
+  const supabase = await createClient()
+
+  // Auto sign-up customer using phone as email identifier
+  const fakeEmail = `${payload.customerPhone.replace(/\D/g, '')}@aurafirm.customer`
+  const password = payload.customerPhone.replace(/\D/g, '')
+
+  let customerId: string | null = null
+
+  // Try to sign in first, if not found sign up
+  const { data: signInData } = await supabase.auth.signInWithPassword({
+    email: fakeEmail,
+    password,
+  })
+
+  if (signInData?.user) {
+    customerId = signInData.user.id
+  } else {
+    const { data: signUpData } = await supabase.auth.signUp({
+      email: fakeEmail,
+      password,
+      options: {
+        data: {
+          full_name: payload.customerName,
+          phone: payload.customerPhone,
+          is_admin: false,
+        },
+        emailRedirectTo:
+          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
+          `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/auth/callback`,
+      },
+    })
+    customerId = signUpData?.user?.id ?? null
+  }
+
+  // Generate order number
+  const { data: orderNumData } = await supabase.rpc('generate_order_number')
+  const orderNumber = orderNumData as string
+
+  // Insert order
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      order_number: orderNumber,
+      customer_id: customerId,
+      customer_name: payload.customerName,
+      customer_email: payload.customerEmail,
+      customer_phone: payload.customerPhone,
+      billing_address: payload.billingAddress,
+      shipping_address: payload.shippingAddress,
+      subtotal: payload.subtotal,
+      discount: payload.discount,
+      shipping_cost: payload.shippingCost,
+      tax: payload.tax,
+      grand_total: payload.grandTotal,
+      coupon_code: payload.couponCode ?? null,
+      payment_method: payload.paymentMethod,
+      payment_status: payload.paymentStatus,
+      razorpay_order_id: payload.razorpayOrderId ?? null,
+      razorpay_payment_id: payload.razorpayPaymentId ?? null,
+      delivery_method: payload.deliveryMethod,
+      status: payload.paymentMethod === 'cod' ? 'pending' : 'processing',
+    })
+    .select()
+    .single()
+
+  if (orderError) throw orderError
+
+  // Insert order items
+  const orderItems = payload.items.map((item) => ({
+    order_id: order.id,
+    product_id: item.productId ?? null,
+    product_name: item.productName,
+    product_image: item.productImage ?? null,
+    price: item.price,
+    quantity: item.quantity,
+    total: item.total,
+  }))
+
+  const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
+  if (itemsError) throw itemsError
+
+  revalidatePath('/account/orders')
+  return { orderId: order.id, orderNumber, customerId }
+}
+
+// ─── Customer orders ───────────────────────────────────────────────────────────
+
+export async function getMyOrders() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*, order_items(*)')
+    .eq('customer_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+// ─── Admin ─────────────────────────────────────────────────────────────────────
+
+export async function adminGetOrders(filters?: {
+  status?: string
+  paymentStatus?: string
+  search?: string
+}) {
+  const supabase = createAdminClient()
+  let query = supabase
+    .from('orders')
+    .select('*, order_items(*)')
+    .order('created_at', { ascending: false })
+
+  if (filters?.status && filters.status !== 'all') {
+    query = query.eq('status', filters.status)
+  }
+  if (filters?.paymentStatus && filters.paymentStatus !== 'all') {
+    query = query.eq('payment_status', filters.paymentStatus)
+  }
+  if (filters?.search) {
+    query = query.or(
+      `order_number.ilike.%${filters.search}%,customer_name.ilike.%${filters.search}%,customer_phone.ilike.%${filters.search}%`
+    )
+  }
+
+  const { data, error } = await query
+  if (error) throw error
+  return data
+}
+
+export async function adminUpdateOrderStatus(orderId: string, status: string) {
+  const supabase = createAdminClient()
+  const now = new Date().toISOString()
+  const extra: Record<string, string | null> = {}
+  if (status === 'shipped')   extra.shipped_at   = now
+  if (status === 'delivered') extra.delivered_at = now
+  const { error } = await supabase
+    .from('orders')
+    .update({ status, updated_at: now, ...extra })
+    .eq('id', orderId)
+  if (error) throw error
+  revalidatePath('/admin/orders')
+  revalidatePath('/account/orders')
+}
+
+export async function adminUpdateOrderShipping(orderId: string, payload: {
+  status: string
+  carrier: string
+  tracking_id: string
+  tracking_url: string
+  estimated_delivery: string   // ISO date string or ""
+  notes: string
+}) {
+  const supabase = createAdminClient()
+  const now = new Date().toISOString()
+  const extra: Record<string, string | null> = {}
+  if (payload.status === 'shipped')   extra.shipped_at   = now
+  if (payload.status === 'delivered') extra.delivered_at = now
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      status:             payload.status,
+      carrier:            payload.carrier            || null,
+      tracking_id:        payload.tracking_id        || null,
+      tracking_url:       payload.tracking_url       || null,
+      estimated_delivery: payload.estimated_delivery || null,
+      notes:              payload.notes              || null,
+      updated_at:         now,
+      ...extra,
+    })
+    .eq('id', orderId)
+  if (error) throw error
+  revalidatePath('/admin/orders')
+  revalidatePath('/account/orders')
+}
+
+export async function adminGetProducts() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function adminUpsertProduct(
+  product: {
+    id?: string
+    name: string
+    subtitle?: string
+    description?: string
+    price: number
+    original_price?: number
+    vip_price?: number
+    category: string
+    image_url?: string
+    stock: number
+    tags?: string[]
+    is_active: boolean
+    slug?: string
+    size_label?: string
+    rating?: number
+    review_count?: number
+    gallery_images?: string[]
+    helps_with?: string[]
+    suitable_for?: string[]
+    hero_ingredients?: { image: string; title: string; description: string; benefits: string[] }[]
+    how_to_use_steps?: { number: string; title: string; description: string }[]
+    full_ingredients_text?: string
+    manufacturing_info?: string
+    faqs?: { question: string; answer: string }[]
+  }
+) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('products').upsert({
+    ...product,
+    updated_at: new Date().toISOString(),
+  })
+  if (error) throw error
+  revalidatePath('/admin/products')
+  revalidatePath('/')
+}
+
+export async function adminDeleteProduct(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('products').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/products')
+  revalidatePath('/')
+}
+
+export async function adminGetDashboardStats() {
+  const supabase = createAdminClient()
+
+  const [ordersRes, customersRes, productsRes] = await Promise.all([
+    supabase.from('orders').select('id, order_number, customer_name, grand_total, status, created_at'),
+    supabase.from('profiles').select('id', { count: 'exact' }).eq('is_admin', false),
+    supabase.from('products').select('id, name, stock', { count: 'exact' }),
+  ])
+
+  const orders = ordersRes.data ?? []
+  const totalRevenue = orders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+  const totalOrders = orders.length
+  const completedOrders = orders.filter((o) => o.status === 'delivered').length
+  const pendingOrders = orders.filter((o) => o.status === 'pending').length
+  const totalCustomers = customersRes.count ?? 0
+  const lowStockProducts = (productsRes.data ?? []).filter((p) => p.stock < 20).length
+
+  // Build last 7 days sales chart data
+  const now = new Date()
+  const chartData: { date: string; sales: number }[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now)
+    d.setDate(d.getDate() - i)
+    const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    const dayOrders = orders.filter((o) => {
+      const od = new Date(o.created_at)
+      return od.toDateString() === d.toDateString()
+    })
+    chartData.push({ date: dateStr, sales: dayOrders.reduce((s, o) => s + o.grand_total, 0) })
+  }
+
+  return {
+    totalOrders,
+    totalRevenue,
+    totalCustomers,
+    grossProfit: Math.round(totalRevenue * 0.42),
+    avgOrderValue: totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0,
+    completedOrders,
+    pendingOrders,
+    lowStockProducts,
+    chartData,
+    recentOrders: (ordersRes.data ?? []).slice(0, 5),
+  }
+}
+
+export async function adminGetCustomers() {
+  const supabase = createAdminClient()
+  // Join profiles with orders to get order count and total spend
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('is_admin', false)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+
+  const { data: orders } = await supabase
+    .from('orders')
+    .select('customer_id, grand_total, status')
+
+  return (profiles ?? []).map((p) => {
+    const customerOrders = (orders ?? []).filter((o) => o.customer_id === p.id)
+    return {
+      ...p,
+      order_count: customerOrders.length,
+      total_spend: customerOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0),
+    }
+  })
+}
+
+// ─── Coupons ────────────────────────────────────────────────────────────────────
+
+export async function adminGetCoupons() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('coupons')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function adminUpsertCoupon(coupon: {
+  id?: string
+  code: string
+  discount_type: 'fixed' | 'percentage'
+  discount_value: number
+  min_order_value: number
+  max_uses?: number | null
+  expires_at?: string | null
+  is_active: boolean
+}) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').upsert({
+    ...coupon,
+    code: coupon.code.toUpperCase().trim(),
+  })
+  if (error) throw error
+  revalidatePath('/admin/coupons')
+}
+
+export async function adminDeleteCoupon(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/coupons')
+}
+
+export async function adminToggleCoupon(id: string, is_active: boolean) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').update({ is_active }).eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/coupons')
+}
+
+// ─── Inventory ──────────────────────────────────────────────────────────────────
+
+export async function adminUpdateStock(productId: string, stock: number) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('products')
+    .update({ stock, updated_at: new Date().toISOString() })
+    .eq('id', productId)
+  if (error) throw error
+  revalidatePath('/admin/inventory')
+  revalidatePath('/admin/products')
+}
+
+// ─── Sales & Analytics ──────────────────────────────────────────────────────────
+
+export async function adminGetSalesData() {
+  const supabase = createAdminClient()
+
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('id, grand_total, subtotal, discount, status, payment_method, created_at, order_items(*)')
+    .order('created_at', { ascending: true })
+  if (error) throw error
+
+  const allOrders = orders ?? []
+
+  // Monthly breakdown for last 12 months
+  const now = new Date()
+  const monthly: { month: string; revenue: number; orders: number; profit: number }[] = []
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' })
+    const monthOrders = allOrders.filter((o) => {
+      const od = new Date(o.created_at)
+      return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth()
+    })
+    const revenue = monthOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+    monthly.push({ month: label, revenue, orders: monthOrders.length, profit: Math.round(revenue * 0.42) })
+  }
+
+  // Payment method breakdown
+  const paymentBreakdown = ['razorpay', 'cod', 'upi'].map((method) => {
+    const methodOrders = allOrders.filter((o) => o.payment_method === method)
+    return {
+      method: method === 'razorpay' ? 'Razorpay' : method === 'cod' ? 'COD' : 'UPI',
+      count: methodOrders.length,
+      revenue: methodOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0),
+    }
+  }).filter((m) => m.count > 0)
+
+  // Status breakdown
+  const statusBreakdown = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => ({
+    status,
+    count: allOrders.filter((o) => o.status === status).length,
+  }))
+
+  const totalRevenue = allOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+  const totalDiscount = allOrders.reduce((s, o) => s + (o.discount ?? 0), 0)
+
+  return {
+    monthly,
+    paymentBreakdown,
+    statusBreakdown,
+    totalRevenue,
+    totalDiscount,
+    totalOrders: allOrders.length,
+    avgOrderValue: allOrders.length > 0 ? Math.round(totalRevenue / allOrders.length) : 0,
+    grossProfit: Math.round(totalRevenue * 0.42),
+  }
+}
+
+export async function adminGetAnalyticsData() {
+  const supabase = createAdminClient()
+
+  const [ordersRes, productsRes] = await Promise.all([
+    supabase.from('orders').select('id, grand_total, status, created_at, order_items(product_name, quantity, total)'),
+    supabase.from('products').select('id, name, category, price, stock'),
+  ])
+
+  const orders = ordersRes.data ?? []
+  const products = productsRes.data ?? []
+
+  // Top products by revenue
+  const productRevMap: Record<string, { name: string; revenue: number; units: number }> = {}
+  for (const order of orders) {
+    for (const item of (order.order_items as { product_name: string; quantity: number; total: number }[])) {
+      if (!productRevMap[item.product_name]) {
+        productRevMap[item.product_name] = { name: item.product_name, revenue: 0, units: 0 }
+      }
+      productRevMap[item.product_name].revenue += item.total ?? 0
+      productRevMap[item.product_name].units += item.quantity ?? 0
+    }
+  }
+  const topProducts = Object.values(productRevMap)
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 8)
+
+  // Category breakdown
+  const catMap: Record<string, number> = {}
+  for (const p of products) {
+    catMap[p.category] = (catMap[p.category] ?? 0) + 1
+  }
+  const categoryBreakdown = Object.entries(catMap).map(([cat, count]) => ({ cat, count }))
+
+  // Daily orders last 30 days
+  const daily: { day: string; orders: number; revenue: number }[] = []
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    const dayOrders = orders.filter((o) => new Date(o.created_at).toDateString() === d.toDateString())
+    daily.push({
+      day: label,
+      orders: dayOrders.length,
+      revenue: dayOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0),
+    })
+  }
+
+  return { topProducts, categoryBreakdown, daily }
+}
+
+export async function adminGetTopProducts() {
+  const supabase = createAdminClient()
+  const { data: items, error } = await supabase
+    .from('order_items')
+    .select('product_id, product_name, product_image, total, quantity')
+  if (error) return []
+
+  const map: Record<string, { id: string; name: string; image: string | null; revenue: number; units: number }> = {}
+  for (const item of items ?? []) {
+    const key = item.product_id ?? item.product_name
+    if (!map[key]) map[key] = { id: key, name: item.product_name, image: item.product_image, revenue: 0, units: 0 }
+    map[key].revenue += item.total ?? 0
+    map[key].units += item.quantity ?? 0
+  }
+  return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 5)
+}
+
+// ─── Reviews ───────────────────────────────────────────────────────────────────
+
+export type Review = {
+  id: string
+  product_id: string
+  customer_id: string
+  customer_name: string
+  rating: number
+  title: string | null
+  comment: string
+  is_approved: boolean
+  is_verified: boolean
+  created_at: string
+}
+
+/** Get all approved reviews for a product (public). */
+export async function getProductReviews(productId: string): Promise<Review[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('product_id', productId)
+    .eq('is_approved', true)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
+}
+
+/** Get the currently logged-in user's review for a product (if any). */
+export async function getMyReview(productId: string): Promise<Review | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('product_id', productId)
+    .eq('customer_id', user.id)
+    .single()
+  return data ?? null
+}
+
+/** Submit or update a review. Returns an error string on failure. */
+export async function submitReview(payload: {
+  productId: string
+  rating: number
+  title: string
+  comment: string
+}): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'You must be logged in to write a review.' }
+
+  // Fetch customer name from profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single()
+  const customerName = profile?.full_name ?? 'Customer'
+
+  const { error } = await supabase.from('reviews').upsert({
+    product_id: payload.productId,
+    customer_id: user.id,
+    customer_name: customerName,
+    rating: payload.rating,
+    title: payload.title || null,
+    comment: payload.comment,
+    is_approved: false, // requires admin approval
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'product_id,customer_id' })
+
+  if (error) return { error: error.message }
+  revalidatePath(`/product`)
+  return {}
+}
+
+/** Delete the current user's own review. */
+export async function deleteMyReview(reviewId: string): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  await supabase.from('reviews').delete().eq('id', reviewId).eq('customer_id', user.id)
+  revalidatePath('/product')
+}
+
+// ─── Admin Reviews ─────────────────────────────────────────────────────────────
+
+export async function adminGetReviews() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('reviews')
+    .select(`*, products(name, slug, image_url)`)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as (Review & { products: { name: string; slug: string | null; image_url: string | null } | null })[]
+}
+
+export async function adminApproveReview(id: string, is_approved: boolean) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('reviews')
+    .update({ is_approved, updated_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/reviews')
+  revalidatePath('/product')
+}
+
+export async function adminDeleteReview(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('reviews').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/reviews')
+  revalidatePath('/product')
+}
