@@ -19,9 +19,10 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts"
-import { adminGetDashboardStats } from "@/lib/actions"
+import { adminGetDashboardStats, adminGetTopProducts } from "@/lib/actions"
 
 type Stats = Awaited<ReturnType<typeof adminGetDashboardStats>>
+type TopProduct = Awaited<ReturnType<typeof adminGetTopProducts>>[number]
 
 const STATUS_COLORS: Record<string, string> = {
   pending:    "bg-amber-100 text-amber-700",
@@ -65,7 +66,13 @@ function StatCard({
   )
 }
 
-export default function AdminDashboardClient({ stats }: { stats: Stats }) {
+export default function AdminDashboardClient({
+  stats,
+  topProducts,
+}: {
+  stats: Stats
+  topProducts: TopProduct[]
+}) {
   const [dateLabel] = useState(() => {
     const now = new Date()
     const start = new Date(now)
@@ -139,29 +146,32 @@ export default function AdminDashboardClient({ stats }: { stats: Stats }) {
           </ResponsiveContainer>
         </div>
 
-        {/* Top Selling Products — static placeholder since we'd need join query */}
+        {/* Top Selling Products — live from order_items */}
         <div className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-bold text-neutral-900">Top Selling Products</h2>
-            <Link href="/admin/products" className="text-xs text-[#c9744e] hover:underline">View All</Link>
+            <Link href="/admin/analytics" className="text-xs text-[#c9744e] hover:underline">View All</Link>
           </div>
           <div className="space-y-4">
-            {[
-              { name: "Ultra Tulsi Essence",   cat: "Face Serum",    revenue: 76756 },
-              { name: "Premium Face Serum",    cat: "Face Serum",    revenue: 64384 },
-              { name: "Vitamin C Face Wash",   cat: "Face Wash",     revenue: 43812 },
-              { name: "Hydra Glow Moisturizer",cat: "50G Tube",      revenue: 32450 },
-              { name: "Daily Sunscreen SPF 50",cat: "50G Suns",      revenue: 28500 },
-            ].map((p) => (
-              <div key={p.name} className="flex items-center gap-3">
-                <div className="h-10 w-10 flex-shrink-0 rounded-lg bg-[#fdf0e8]" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-neutral-800">{p.name}</p>
-                  <p className="text-[10px] text-neutral-400">{p.cat}</p>
+            {topProducts.length === 0 ? (
+              <p className="text-xs text-neutral-400">No sales data yet.</p>
+            ) : (
+              topProducts.map((p) => (
+                <div key={p.id} className="flex items-center gap-3">
+                  <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-[#fdf0e8]">
+                    {p.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.image} alt={p.name} className="h-full w-full object-cover mix-blend-multiply" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-neutral-800">{p.name}</p>
+                    <p className="text-[10px] text-neutral-400">{p.units} unit{p.units !== 1 ? "s" : ""} sold</p>
+                  </div>
+                  <p className="text-xs font-bold text-neutral-800">₹{p.revenue.toLocaleString("en-IN")}</p>
                 </div>
-                <p className="text-xs font-bold text-neutral-800">₹{p.revenue.toLocaleString("en-IN")}</p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 

@@ -319,11 +319,212 @@ export async function adminGetDashboardStats() {
 
 export async function adminGetCustomers() {
   const supabase = createAdminClient()
-  const { data, error } = await supabase
+  // Join profiles with orders to get order count and total spend
+  const { data: profiles, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('is_admin', false)
     .order('created_at', { ascending: false })
   if (error) throw error
+
+  const { data: orders } = await supabase
+    .from('orders')
+    .select('customer_id, grand_total, status')
+
+  return (profiles ?? []).map((p) => {
+    const customerOrders = (orders ?? []).filter((o) => o.customer_id === p.id)
+    return {
+      ...p,
+      order_count: customerOrders.length,
+      total_spend: customerOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0),
+    }
+  })
+}
+
+// ─── Coupons ────────────────────────────────────────────────────────────────────
+
+export async function adminGetCoupons() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('coupons')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
   return data
+}
+
+export async function adminUpsertCoupon(coupon: {
+  id?: string
+  code: string
+  discount_type: 'fixed' | 'percentage'
+  discount_value: number
+  min_order_value: number
+  max_uses?: number | null
+  expires_at?: string | null
+  is_active: boolean
+}) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').upsert({
+    ...coupon,
+    code: coupon.code.toUpperCase().trim(),
+  })
+  if (error) throw error
+  revalidatePath('/admin/coupons')
+}
+
+export async function adminDeleteCoupon(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/coupons')
+}
+
+export async function adminToggleCoupon(id: string, is_active: boolean) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('coupons').update({ is_active }).eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/coupons')
+}
+
+// ─── Inventory ──────────────────────────────────────────────────────────────────
+
+export async function adminUpdateStock(productId: string, stock: number) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('products')
+    .update({ stock, updated_at: new Date().toISOString() })
+    .eq('id', productId)
+  if (error) throw error
+  revalidatePath('/admin/inventory')
+  revalidatePath('/admin/products')
+}
+
+// ─── Sales & Analytics ──────────────────────────────────────────────────────────
+
+export async function adminGetSalesData() {
+  const supabase = createAdminClient()
+
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('id, grand_total, subtotal, discount, status, payment_method, created_at, order_items(*)')
+    .order('created_at', { ascending: true })
+  if (error) throw error
+
+  const allOrders = orders ?? []
+
+  // Monthly breakdown for last 12 months
+  const now = new Date()
+  const monthly: { month: string; revenue: number; orders: number; profit: number }[] = []
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const label = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' })
+    const monthOrders = allOrders.filter((o) => {
+      const od = new Date(o.created_at)
+      return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth()
+    })
+    const revenue = monthOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+    monthly.push({ month: label, revenue, orders: monthOrders.length, profit: Math.round(revenue * 0.42) })
+  }
+
+  // Payment method breakdown
+  const paymentBreakdown = ['razorpay', 'cod', 'upi'].map((method) => {
+    const methodOrders = allOrders.filter((o) => o.payment_method === method)
+    return {
+      method: method === 'razorpay' ? 'Razorpay' : method === 'cod' ? 'COD' : 'UPI',
+      count: methodOrders.length,
+      revenue: methodOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0),
+    }
+  }).filter((m) => m.count > 0)
+
+  // Status breakdown
+  const statusBreakdown = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => ({
+    status,
+    count: allOrders.filter((o) => o.status === status).length,
+  }))
+
+  const totalRevenue = allOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+  const totalDiscount = allOrders.reduce((s, o) => s + (o.discount ?? 0), 0)
+
+  return {
+    monthly,
+    paymentBreakdown,
+    statusBreakdown,
+    totalRevenue,
+    totalDiscount,
+    totalOrders: allOrders.length,
+    avgOrderValue: allOrders.length > 0 ? Math.round(totalRevenue / allOrders.length) : 0,
+    grossProfit: Math.round(totalRevenue * 0.42),
+  }
+}
+
+export async function adminGetAnalyticsData() {
+  const supabase = createAdminClient()
+
+  const [ordersRes, productsRes] = await Promise.all([
+    supabase.from('orders').select('id, grand_total, status, created_at, order_items(product_name, quantity, total)'),
+    supabase.from('products').select('id, name, category, price, stock'),
+  ])
+
+  const orders = ordersRes.data ?? []
+  const products = productsRes.data ?? []
+
+  // Top products by revenue
+  const productRevMap: Record<string, { name: string; revenue: number; units: number }> = {}
+  for (const order of orders) {
+    for (const item of (order.order_items as { product_name: string; quantity: number; total: number }[])) {
+      if (!productRevMap[item.product_name]) {
+        productRevMap[item.product_name] = { name: item.product_name, revenue: 0, units: 0 }
+      }
+      productRevMap[item.product_name].revenue += item.total ?? 0
+      productRevMap[item.product_name].units += item.quantity ?? 0
+    }
+  }
+  const topProducts = Object.values(productRevMap)
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 8)
+
+  // Category breakdown
+  const catMap: Record<string, number> = {}
+  for (const p of products) {
+    catMap[p.category] = (catMap[p.category] ?? 0) + 1
+  }
+  const categoryBreakdown = Object.entries(catMap).map(([cat, count]) => ({ cat, count }))
+
+  // Daily orders last 30 days
+  const daily: { day: string; orders: number; revenue: number }[] = []
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+    const dayOrders = orders.filter((o) => new Date(o.created_at).toDateString() === d.toDateString())
+    daily.push({
+      day: label,
+      orders: dayOrders.length,
+      revenue: dayOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0),
+    })
+  }
+
+  return { topProducts, categoryBreakdown, daily }
+}
+
+export async function adminGetTopProducts() {
+  const supabase = createAdminClient()
+  const { data: items, error } = await supabase
+    .from('order_items')
+    .select('product_id, product_name, product_image, total, quantity')
+  if (error) return []
+
+  const map: Record<string, { id: string; name: string; image: string | null; revenue: number; units: number }> = {}
+  for (const item of items ?? []) {
+    const key = item.product_id ?? item.product_name
+    if (!map[key]) map[key] = { id: key, name: item.product_name, image: item.product_image, revenue: 0, units: 0 }
+    map[key].revenue += item.total ?? 0
+    map[key].units += item.quantity ?? 0
+  }
+  return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 5)
+}
+
+export async function adminGetReviews() {
+  // Placeholder — no reviews table yet, returns empty
+  return [] as { id: string; customer_name: string; product_name: string; rating: number; comment: string; created_at: string; is_approved: boolean }[]
 }
