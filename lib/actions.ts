@@ -27,6 +27,26 @@ export async function getProductById(id: string) {
   return data
 }
 
+export async function getProductBySlug(slug: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  if (error) return null
+  return data
+}
+
+export async function getAllProductSlugs() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('products')
+    .select('slug')
+    .not('slug', 'is', null)
+  return (data ?? []).map((r) => r.slug as string)
+}
+
 // ─── Coupons ──────────────────────────────────────────────────────────────────
 
 export async function validateCoupon(code: string, orderTotal: number) {

@@ -176,6 +176,7 @@ interface DBProduct {
   tags?: string[] | null
   is_active: boolean
   stock: number
+  slug?: string | null
 }
 
 export default function LumoraLanding({ products = [] }: { products: DBProduct[] }) {
@@ -194,6 +195,7 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
         tags: ["Vegan", "Dermatest Tested"],
         is_active: true,
         stock: 100,
+        slug: null,
       }))
 
   const scrollSlider = (direction: "left" | "right") => {
@@ -421,16 +423,18 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
           >
             {displayProducts.map((p) => (
               <div key={p.id} className="flex w-[180px] shrink-0 flex-col">
-                <div className="flex h-[200px] items-center justify-center rounded-xl bg-[#fbede5] p-4">
-                  <Image
-                    src={p.image_url || "/placeholder.svg"}
-                    alt={p.name}
-                    width={160}
-                    height={160}
-                    className="h-full w-auto object-contain mix-blend-multiply"
-                  />
-                </div>
-                <p className="mt-3 text-sm text-neutral-700">{p.name}</p>
+                <Link href={p.slug ? `/product/${p.slug}` : "#"} className="block">
+                  <div className="flex h-[200px] items-center justify-center rounded-xl bg-[#fbede5] p-4 transition-opacity hover:opacity-90">
+                    <Image
+                      src={p.image_url || "/placeholder.svg"}
+                      alt={p.name}
+                      width={160}
+                      height={160}
+                      className="h-full w-auto object-contain mix-blend-multiply"
+                    />
+                  </div>
+                </Link>
+                <Link href={p.slug ? `/product/${p.slug}` : "#"} className="mt-3 text-sm font-medium text-neutral-700 hover:text-[#c9744e]">{p.name}</Link>
                 <p className="text-sm text-neutral-500">{`\u20B9${p.price.toLocaleString("en-IN")}`}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <button
