@@ -241,12 +241,48 @@ export async function adminGetOrders(filters?: {
 
 export async function adminUpdateOrderStatus(orderId: string, status: string) {
   const supabase = createAdminClient()
+  const now = new Date().toISOString()
+  const extra: Record<string, string | null> = {}
+  if (status === 'shipped')   extra.shipped_at   = now
+  if (status === 'delivered') extra.delivered_at = now
   const { error } = await supabase
     .from('orders')
-    .update({ status, updated_at: new Date().toISOString() })
+    .update({ status, updated_at: now, ...extra })
     .eq('id', orderId)
   if (error) throw error
   revalidatePath('/admin/orders')
+  revalidatePath('/account/orders')
+}
+
+export async function adminUpdateOrderShipping(orderId: string, payload: {
+  status: string
+  carrier: string
+  tracking_id: string
+  tracking_url: string
+  estimated_delivery: string   // ISO date string or ""
+  notes: string
+}) {
+  const supabase = createAdminClient()
+  const now = new Date().toISOString()
+  const extra: Record<string, string | null> = {}
+  if (payload.status === 'shipped')   extra.shipped_at   = now
+  if (payload.status === 'delivered') extra.delivered_at = now
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      status:             payload.status,
+      carrier:            payload.carrier            || null,
+      tracking_id:        payload.tracking_id        || null,
+      tracking_url:       payload.tracking_url       || null,
+      estimated_delivery: payload.estimated_delivery || null,
+      notes:              payload.notes              || null,
+      updated_at:         now,
+      ...extra,
+    })
+    .eq('id', orderId)
+  if (error) throw error
+  revalidatePath('/admin/orders')
+  revalidatePath('/account/orders')
 }
 
 export async function adminGetProducts() {
