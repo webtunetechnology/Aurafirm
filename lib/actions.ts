@@ -267,11 +267,24 @@ export async function adminUpsertProduct(
     description?: string
     price: number
     original_price?: number
+    vip_price?: number
     category: string
     image_url?: string
     stock: number
     tags?: string[]
     is_active: boolean
+    slug?: string
+    size_label?: string
+    rating?: number
+    review_count?: number
+    gallery_images?: string[]
+    helps_with?: string[]
+    suitable_for?: string[]
+    hero_ingredients?: { image: string; title: string; description: string; benefits: string[] }[]
+    how_to_use_steps?: { number: string; title: string; description: string }[]
+    full_ingredients_text?: string
+    manufacturing_info?: string
+    faqs?: { question: string; answer: string }[]
   }
 ) {
   const supabase = createAdminClient()
