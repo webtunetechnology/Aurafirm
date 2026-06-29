@@ -2,10 +2,9 @@
 
 import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
+import Navbar from "@/components/Navbar"
 import Link from "next/link"
 import {
-  Search,
-  ShoppingCart,
   Heart,
   Camera,
   Play,
@@ -30,14 +29,6 @@ import {
   Sparkles,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
-import UserMenu from "@/components/UserMenu"
-
-const navItems = [
-  { label: "Shop",          href: "/shop" },
-  { label: "Our Story",     href: "/about" },
-  { label: "Why AURAFIRM",  href: "/why-aurafirm" },
-  { label: "Contact",       href: "/contact" },
-]
 
 const heroFeatures = [
   { icon: FlaskConical, title: "Science-Backed", desc: "Research-driven formulations" },
@@ -254,25 +245,7 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
 
   return (
     <main className="min-h-screen w-full bg-[#faf5f3] font-serif text-neutral-800">
-      {/* Top announcement bar */}
-      <div className="flex items-center justify-between bg-[#8a4a32] px-4 py-2 text-[11px] text-white sm:px-8">
-        <div className="flex flex-1 items-center justify-center gap-3">
-          <span className="text-white/80">Also available on</span>
-          <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/amazon/default.svg" alt="Amazon" className="h-4 w-auto" />
-          </a>
-          <span className="text-white/40">&</span>
-          <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-            <img src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1782744189/download-removebg-preview_rhfgf8.png" alt="Flipkart" className="h-5 sm:h-6 w-auto" />
-          </a>
-        </div>
-        <div className="hidden items-center gap-3 sm:flex">
-          <Camera className="h-3.5 w-3.5" />
-          <AtSign className="h-3.5 w-3.5" />
-          <Share2 className="h-3.5 w-3.5" />
-          <Play className="h-3.5 w-3.5" />
-        </div>
-      </div>
+      <Navbar />
 
       {/* Hero wrapper */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#fdf3ec] via-[#faf5f3] to-[#f9e7db]">
@@ -282,46 +255,6 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
         <div className="pointer-events-none absolute -right-16 bottom-0 h-72 w-72 rounded-full border-[30px] border-[#f0d8c8]/50" />
         {/* Soft peach cloud glow behind bottle */}
         <div className="pointer-events-none absolute right-[8%] top-1/4 h-[420px] w-[480px] rounded-full bg-[#f6d9c9]/50 blur-3xl" />
-
-        {/* Navbar */}
-        <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <div className="flex items-center">
-            <Image
-              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-              alt="AURAFIRM logo"
-              width={240}
-              height={80}
-              priority
-              className="h-20 w-auto object-contain"
-            />
-          </div>
-
-          <nav className="hidden items-center gap-8 text-sm md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-neutral-700 transition-colors hover:text-[#b86244]"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-4 text-neutral-700">
-            <Search className="h-4 w-4 cursor-pointer hover:text-[#b86244]" />
-            <Link href="/cart" aria-label="Cart" className="relative transition-colors hover:text-[#b86244]">
-              <ShoppingCart className="h-4 w-4" />
-              {itemCount > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9744e] text-[9px] font-bold text-white">
-                  {itemCount}
-                </span>
-              )}
-            </Link>
-            <Heart className="h-4 w-4 cursor-pointer hover:text-[#b86244]" />
-            <UserMenu />
-          </div>
-        </header>
 
         {/* Hero content */}
         <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-6 pb-20 pt-8 lg:grid-cols-2">

@@ -2,11 +2,11 @@
 
 import Link from "next/link"
 import { useCart } from "@/lib/cart-context"
+import Navbar from "@/components/Navbar"
 import { useState } from "react"
 import {
   ShoppingBag,
-  Menu,
-  X,
+
   ChevronDown,
   ArrowRight,
   FlaskConical,
@@ -27,15 +27,6 @@ import {
   Sprout,
 } from "lucide-react"
 
-const LOGO =
-  "https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-
-const navItems = [
-  { label: "Shop",         href: "/shop" },
-  { label: "Our Story",    href: "/about" },
-  { label: "Why AURAFIRM", href: "/why-aurafirm" },
-  { label: "Contact",      href: "/contact" },
-]
 
 const footerColumns = [
   {
@@ -97,90 +88,12 @@ export default function OurStoryClient({
   values: Value[]
 }) {
   const { items } = useCart()
-  const cartCount = items.reduce((s, i) => s + i.quantity, 0)
-  const [mobileOpen, setMobileOpen] = useState(false)
+
 
   return (
     <div className="min-h-screen bg-[#faf5f3] font-sans">
 
-      {/* Announcement bar */}
-      <div className="flex items-center justify-between bg-[#8a4a32] px-4 py-2 text-[11px] text-white sm:px-8">
-        <div className="flex flex-1 items-center justify-center gap-3">
-          <span className="text-white/80">Also available on</span>
-          <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/amazon/default.svg" alt="Amazon" className="h-4 w-auto" />
-          </a>
-          <span className="text-white/40">&</span>
-          <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-            <img src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1782744189/download-removebg-preview_rhfgf8.png" alt="Flipkart" className="h-5 sm:h-6 w-auto" />
-          </a>
-        </div>
-      </div>
-
-      {/* Navbar */}
-      <header className="sticky top-0 z-30 border-b border-[#f0e0d6] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" aria-label="AURAFIRM home">
-            <img src={LOGO} alt="AURAFIRM logo" className="h-10 w-auto object-contain" />
-          </Link>
-          <nav className="hidden items-center gap-8 text-sm md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`transition-colors hover:text-[#b86244] ${
-                  item.href === "/about"
-                    ? "border-b-2 border-[#b86244] pb-0.5 font-semibold text-[#b86244]"
-                    : "text-neutral-700"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-4">
-            <Link href="/cart" className="relative">
-              <ShoppingBag className="h-5 w-5 text-neutral-700" />
-              {cartCount > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9744e] text-[9px] font-bold text-white">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-            <button
-              className="md:hidden"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5 text-neutral-700" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 bg-white">
-          <div className="flex items-center justify-between border-b border-[#f0e0d6] px-6 py-4">
-            <img src={LOGO} alt="AURAFIRM logo" className="h-9 w-auto" />
-            <button onClick={() => setMobileOpen(false)} aria-label="Close menu">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <nav className="flex flex-col gap-1 px-6 py-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-4 py-3 text-sm font-medium text-neutral-700 hover:bg-[#fdf6f2] hover:text-[#b86244]"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+      <Navbar />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#8a4a32] px-6 py-24 text-white">

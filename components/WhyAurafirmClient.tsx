@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useCart } from "@/lib/cart-context"
-import UserMenu from "@/components/UserMenu"
+import Navbar from "@/components/Navbar"
 import {
   ShoppingBag,
   FlaskConical,
@@ -13,8 +13,6 @@ import {
   Award,
   ChevronDown,
   ArrowRight,
-  Menu,
-  X,
   Camera,
   AtSign,
   Share2,
@@ -23,13 +21,6 @@ import {
   Sprout,
 } from "lucide-react"
 import { useState } from "react"
-
-const navItems = [
-  { label: "Shop",         href: "/shop" },
-  { label: "Our Story",    href: "/about" },
-  { label: "Why AURAFIRM", href: "/why-aurafirm" },
-  { label: "Contact",      href: "/contact" },
-]
 
 const ICON_MAP: Record<string, React.ElementType> = {
   FlaskConical,
@@ -51,9 +42,6 @@ type Pillar = {
   stat_label: string
   is_active: boolean
 }
-
-const LOGO =
-  "https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
 
 const footerColumns = [
   {
@@ -88,93 +76,12 @@ const socialIcons = [Camera, AtSign, Share2, Play, MessageCircle]
 
 export default function WhyAurafirmClient({ pillars }: { pillars: Pillar[] }) {
   const { items } = useCart()
-  const cartCount = items.reduce((s, i) => s + i.quantity, 0)
-  const [mobileOpen, setMobileOpen] = useState(false)
+
 
   return (
     <div className="min-h-screen bg-[#faf5f3] font-sans">
 
-      {/* Announcement bar */}
-      <div className="flex items-center justify-between bg-[#8a4a32] px-4 py-2 text-[11px] text-white sm:px-8">
-        <div className="flex flex-1 items-center justify-center gap-3">
-          <span className="text-white/80">Also available on</span>
-          <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/amazon/default.svg" alt="Amazon" className="h-4 w-auto" />
-          </a>
-          <span className="text-white/40">&</span>
-          <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-            <img src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1782744189/download-removebg-preview_rhfgf8.png" alt="Flipkart" className="h-5 sm:h-6 w-auto" />
-          </a>
-        </div>
-      </div>
-
-      {/* Navbar */}
-      <header className="sticky top-0 z-30 border-b border-[#f0e0d6] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" aria-label="AURAFIRM home">
-            <img src={LOGO} alt="AURAFIRM logo" className="h-10 w-auto object-contain" />
-          </Link>
-          <nav className="hidden items-center gap-8 text-sm md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`transition-colors hover:text-[#b86244] ${
-                  item.href === "/why-aurafirm"
-                    ? "border-b-2 border-[#b86244] pb-0.5 font-semibold text-[#b86244]"
-                    : "text-neutral-700"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/cart"
-              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#e3c8bb] text-neutral-600 hover:bg-[#fdf6f2]"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9744e] text-[9px] font-bold text-white">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-            <UserMenu />
-            <button
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e3c8bb] text-neutral-600 md:hidden"
-              onClick={() => setMobileOpen(true)}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col p-6">
-          <div className="flex items-center justify-between mb-8">
-            <img src={LOGO} alt="AURAFIRM" className="h-9 w-auto" />
-            <button onClick={() => setMobileOpen(false)}>
-              <X className="h-5 w-5 text-neutral-600" />
-            </button>
-          </div>
-          <nav className="flex flex-col gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className="text-lg font-semibold text-neutral-800"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+      <Navbar />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#8a4a32] px-6 py-20 text-center text-white">
