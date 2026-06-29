@@ -16,6 +16,7 @@ import {
   Layers,
   TrendingUp,
   MessageSquare,
+  Sparkles,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -29,8 +30,9 @@ const navItems = [
   { label: "Customers", href: "/admin/customers",   icon: Users },
   { label: "Coupons",   href: "/admin/coupons",     icon: Tag },
   { label: "Reviews",   href: "/admin/reviews",    icon: Star },
-  { label: "Contacts",  href: "/admin/contacts",   icon: MessageSquare },
-  { label: "Settings",  href: "/admin/settings",   icon: Settings },
+  { label: "Contacts",      href: "/admin/contacts",      icon: MessageSquare },
+  { label: "Why AURAFIRM",  href: "/admin/why-aurafirm",  icon: Sparkles },
+  { label: "Settings",      href: "/admin/settings",      icon: Settings },
 ]
 
 export default function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {

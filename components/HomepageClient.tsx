@@ -35,7 +35,7 @@ import UserMenu from "@/components/UserMenu"
 const navItems = [
   { label: "Shop",          href: "/shop" },
   { label: "Our Story",     href: "/about" },
-  { label: "Why AURAFIRM",  href: "/about#why-aurafirm" },
+  { label: "Why AURAFIRM",  href: "/why-aurafirm" },
   { label: "Contact",       href: "/contact" },
 ]
 

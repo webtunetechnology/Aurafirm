@@ -443,6 +443,60 @@ export async function adminUpdateContactStatus(id: string, status: 'read' | 'rep
   revalidatePath('/admin/contacts')
 }
 
+// ─── Why AURAFIRM Pillars ─────────────────────────────────────────────────────
+
+export async function getWhyPillars() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('why_aurafirm_pillars')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function adminGetAllWhyPillars() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('why_aurafirm_pillars')
+    .select('*')
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function adminUpsertWhyPillar(pillar: {
+  id?: string
+  sort_order: number
+  icon: string
+  title: string
+  subtitle: string
+  description: string
+  stat_value: string
+  stat_label: string
+  is_active: boolean
+}) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('why_aurafirm_pillars')
+    .upsert({ ...pillar, updated_at: new Date().toISOString() })
+  if (error) throw error
+  revalidatePath('/why-aurafirm')
+  revalidatePath('/admin/why-aurafirm')
+}
+
+export async function adminDeleteWhyPillar(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('why_aurafirm_pillars')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+  revalidatePath('/why-aurafirm')
+  revalidatePath('/admin/why-aurafirm')
+}
+
 // ─── Customers ────────────────────────────────────────────────────────────────
 
 export async function adminGetCustomers() {
@@ -469,7 +523,7 @@ export async function adminGetCustomers() {
   })
 }
 
-// ─── Coupons ────────────────────────────────────────────────────────────────────
+// ─── Coupons ───────────────────────────────────────────���────────────────────────
 
 export async function adminGetCoupons() {
   const supabase = createAdminClient()
