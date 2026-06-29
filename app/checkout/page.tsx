@@ -848,7 +848,7 @@ function AnnouncementBar() {
             </a>
             <span className="text-white/40 text-[10px]">&</span>
             <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-              <img src="/flipkart-logo.svg" alt="Flipkart" className="h-3.5 sm:h-4 w-auto" />
+              <img src="/flipkart-logo.svg" alt="Flipkart" className="h-5 sm:h-6 w-auto" />
             </a>
           </div>
         <div className="flex flex-1 items-center justify-end gap-3 text-white/90">
