@@ -20,7 +20,6 @@ import {
   Leaf,
   ChevronRight,
   ArrowLeft,
-  Tag,
   MessageCircle,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
@@ -64,7 +63,7 @@ const suggestedProducts = [
 ]
 
 const trustBadges = [
-  { icon: Truck, title: "Free Shipping", sub: "On orders above ₹999" },
+  { icon: Truck, title: "Free Shipping", sub: "On all orders" },
   { icon: Lock, title: "Secure Payment", sub: "100% protected" },
   { icon: ShieldCheck, title: "Dermatest Tested", sub: "Safe for sensitive skin" },
   { icon: Leaf, title: "Vegan", sub: "Plant Powered" },
@@ -81,24 +80,14 @@ const footerColumns = [
   },
 ]
 
-const FREE_SHIPPING_THRESHOLD = 1999
-const DISCOUNT = 200
-const SHIPPING = 99
-const TAX_RATE = 0.18
-
 export default function CartPage() {
   const { items, removeItem, updateQuantity, addItem } = useCart()
-  const [couponCode, setCouponCode] = useState("")
   const [wishlist, setWishlist] = useState<Set<string>>(new Set())
   const [wishlistSuggested, setWishlistSuggested] = useState<Set<string>>(new Set())
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING
-  const tax = Math.round(subtotal * TAX_RATE)
-  const grandTotal = subtotal - DISCOUNT + shippingCost + tax
-
-  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
-  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)
+  const shippingCost = 0
+  const grandTotal = subtotal + shippingCost
 
   const toggleWishlist = (id: string) => {
     setWishlist((prev) => {
@@ -325,37 +314,13 @@ export default function CartPage() {
                 </div>
               )}
 
-              {/* Free shipping progress */}
+              {/* Free shipping banner */}
               {items.length > 0 && (
-                <div className="border-t border-[#f0d8c8] bg-[#fdf6f2] px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <p className="flex items-center gap-2 text-sm text-neutral-700">
-                      <Truck className="h-4 w-4 text-[#c9744e]" />
-                      {amountToFreeShipping > 0 ? (
-                        <>
-                          You&apos;re{" "}
-                          <strong className="text-neutral-900">
-                            ₹{amountToFreeShipping.toLocaleString("en-IN")}
-                          </strong>{" "}
-                          away from{" "}
-                          <strong className="text-neutral-900">FREE SHIPPING</strong>
-                        </>
-                      ) : (
-                        <span className="font-semibold text-[#6b8f5e]">
-                          You&apos;ve unlocked FREE SHIPPING!
-                        </span>
-                      )}
-                    </p>
-                    <span className="text-xs text-neutral-500">
-                      ₹{subtotal.toLocaleString("en-IN")} / ₹{FREE_SHIPPING_THRESHOLD.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#f0d8c8]">
-                    <div
-                      className="h-full rounded-full bg-[#c9744e] transition-all duration-500"
-                      style={{ width: `${freeShippingProgress}%` }}
-                    />
-                  </div>
+                <div className="border-t border-[#f0d8c8] bg-[#fdf6f2] px-6 py-3">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-[#6b8f5e]">
+                    <Truck className="h-4 w-4" />
+                    Free Shipping on all orders!
+                  </p>
                 </div>
               )}
             </div>
@@ -432,12 +397,8 @@ export default function CartPage() {
                   <span className="text-neutral-600">Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} items)</span>
                   <span className="font-semibold">₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-600">Discount</span>
-                  <span className="font-semibold text-[#c9744e]">-₹{DISCOUNT}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-600">Shipping</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-neutral-600">Shipping</span>
                   <span className="font-semibold">
                     {shippingCost === 0 ? (
                       <span className="text-[#6b8f5e]">Free</span>
@@ -446,10 +407,6 @@ export default function CartPage() {
                     )}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-600">Tax (18%)</span>
-                  <span className="font-semibold">₹{tax.toLocaleString("en-IN")}</span>
-                </div>
               </div>
 
               <div className="my-4 border-t border-dashed border-[#f0d8c8]" />
@@ -457,29 +414,14 @@ export default function CartPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-base font-extrabold text-neutral-900">Grand Total</p>
-                  <p className="text-[10px] text-neutral-500">Inclusive of all taxes</p>
+                  <p className="text-[10px] text-neutral-500">Taxes included in product price</p>
                 </div>
                 <p className="text-2xl font-extrabold text-[#c9744e]">
                   ₹{grandTotal.toLocaleString("en-IN")}
                 </p>
               </div>
 
-              {/* Coupon code */}
-              <div className="mt-5 flex items-center overflow-hidden rounded-xl border border-[#e3c8bb]">
-                <div className="flex flex-1 items-center gap-2 px-3 py-2 text-neutral-500">
-                  <Tag className="h-4 w-4 shrink-0" />
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Coupon Code"
-                    className="w-full bg-transparent text-sm text-neutral-800 placeholder-neutral-400 outline-none"
-                  />
-                </div>
-                <button className="bg-[#c9744e] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b86244]">
-                  Apply
-                </button>
-              </div>
+
 
               {/* CTA buttons */}
               <Link
@@ -599,22 +541,9 @@ export default function CartPage() {
 
           {/* Footer bottom */}
           <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-[#f0d8c8] pt-6 text-xs text-neutral-500">
-            <p>
-              Copyright &copy; 2025{" "}
-              <a href="#" className="font-semibold text-[#c9744e] hover:underline">
-                Aurafirm
-              </a>
-              . All Rights Reserved.
-            </p>
-            <div className="flex items-center gap-4">
-              <select className="rounded border border-[#e3c8bb] bg-transparent px-2 py-1 text-xs text-neutral-600">
-                <option>English</option>
-              </select>
-              <select className="rounded border border-[#e3c8bb] bg-transparent px-2 py-1 text-xs text-neutral-600">
-                <option>USD</option>
-                <option>INR</option>
-              </select>
-            </div>
+                    <span className="font-semibold text-[#6b8f5e]">
+                      Free Shipping on all orders!
+                    </span>
           </div>
         </div>
       </footer>

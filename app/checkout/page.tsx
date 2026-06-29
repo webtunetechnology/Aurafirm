@@ -18,7 +18,6 @@ import {
   ShoppingCart,
   Heart,
   Tag,
-  Building2,
   Package,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
@@ -61,19 +60,16 @@ const brandBar = [
 ]
 
 const trustBadges = [
-  { icon: Truck, title: "Free Shipping", sub: "On orders above ₹999" },
+  { icon: Truck, title: "Free Shipping", sub: "On all orders" },
   { icon: Lock, title: "Secure Payment", sub: "100% protected" },
   { icon: ShieldCheck, title: "Dermatest Tested", sub: "Safe for sensitive skin" },
   { icon: Leaf, title: "Vegan", sub: "Plant Powered" },
 ]
 
 const DISCOUNT = 200
-const SHIPPING_STANDARD = 0
 const SHIPPING_EXPRESS = 149
-const TAX_RATE = 0.18
-const FREE_SHIPPING_THRESHOLD = 999
 
-type PaymentMethod = "upi" | "card" | "netbanking" | "cod"
+type PaymentMethod = "online" | "cod"
 
 const inputCls =
   "w-full rounded-lg border border-[#e3c8bb] bg-white px-3 py-2 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-[#c9744e] focus:ring-1 focus:ring-[#c9744e]/30"
@@ -99,7 +95,7 @@ export default function CheckoutPage() {
   const [delivery, setDelivery] = useState<"standard" | "express">("standard")
 
   // Payment
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi")
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online")
 
   // Coupon
   const [coupon, setCoupon] = useState("")
@@ -112,12 +108,12 @@ export default function CheckoutPage() {
   const [orderDone, setOrderDone] = useState(false)
   const [orderId, setOrderId] = useState("")
   const [orderNumber, setOrderNumber] = useState("")
+  const [orderError, setOrderError] = useState("")
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const shippingCost = delivery === "express" ? SHIPPING_EXPRESS : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_STANDARD)
+  const shippingCost = delivery === "express" ? SHIPPING_EXPRESS : 0
   const discount = couponApplied ? couponDiscount : 0
-  const tax = Math.round(subtotal * TAX_RATE)
-  const grandTotal = subtotal - discount + shippingCost + tax
+  const grandTotal = subtotal - discount + shippingCost
 
   const handleApplyCoupon = async () => {
     if (!coupon.trim()) return
@@ -148,12 +144,60 @@ export default function CheckoutPage() {
   const updateShipping = (field: string, value: string) =>
     setShipping((p) => ({ ...p, [field]: value }))
 
+  const isBillingValid =
+    billing.fullName.trim() !== "" &&
+    billing.email.trim() !== "" &&
+    billing.phone.trim().replace(/\D/g, "").length === 10 &&
+    billing.address.trim() !== "" &&
+    billing.city.trim() !== "" &&
+    billing.state !== "" &&
+    billing.pin.trim().length === 6
+
+  const isShippingValid = !shipDifferent || (
+    shipping.fullName.trim() !== "" &&
+    shipping.address.trim() !== "" &&
+    shipping.city.trim() !== "" &&
+    shipping.state !== "" &&
+    shipping.pin.trim().length === 6
+  )
+
+  const isFormValid = isBillingValid && isShippingValid && items.length > 0
+
   const handlePlaceOrder = async () => {
-    if (items.length === 0) return
+    if (!isFormValid) return
     setPlacing(true)
 
     try {
-      // Create Razorpay order on server
+      // COD: skip Razorpay entirely
+      if (paymentMethod === "cod") {
+        const shippingAddr = shipDifferent ? shipping : {
+          fullName: billing.fullName, address: billing.address,
+          apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin,
+        }
+        const result = await createOrder({
+          customerName: billing.fullName,
+          customerEmail: billing.email,
+          customerPhone: `+91${billing.phone}`,
+          billingAddress: { address: billing.address, apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin },
+          shippingAddress: shippingAddr as Record<string, string>,
+          subtotal, discount, shippingCost, tax: 0, grandTotal,
+          couponCode: couponApplied ? coupon : undefined,
+          paymentMethod: "cod",
+          paymentStatus: "pending",
+          deliveryMethod: delivery,
+          items: items.map((i) => ({
+            productName: i.name, productImage: i.image,
+            price: i.price, quantity: i.quantity, total: i.price * i.quantity,
+          })),
+        })
+        setOrderNumber(result.orderNumber)
+        clearCart()
+        setOrderDone(true)
+        setPlacing(false)
+        return
+      }
+
+      // Online payment: create Razorpay order on server
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -193,10 +237,10 @@ export default function CheckoutPage() {
               subtotal,
               discount,
               shippingCost,
-              tax,
+              tax: 0,
               grandTotal,
               couponCode: couponApplied ? coupon : undefined,
-              paymentMethod: paymentMethod === "cod" ? "cod" : "razorpay",
+              paymentMethod: "razorpay",
               paymentStatus: "paid",
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
@@ -222,39 +266,10 @@ export default function CheckoutPage() {
         },
       }
 
-      if (paymentMethod === "cod") {
-        // For COD, save order directly without Razorpay
-        const shippingAddr = shipDifferent ? shipping : {
-          fullName: billing.fullName, address: billing.address,
-          apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin,
-        }
-        const result = await createOrder({
-          customerName: billing.fullName,
-          customerEmail: billing.email,
-          customerPhone: `+91${billing.phone}`,
-          billingAddress: { address: billing.address, apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin },
-          shippingAddress: shippingAddr as Record<string, string>,
-          subtotal, discount, shippingCost, tax, grandTotal,
-          couponCode: couponApplied ? coupon : undefined,
-          paymentMethod: "cod",
-          paymentStatus: "pending",
-          deliveryMethod: delivery,
-          items: items.map((i) => ({
-            productName: i.name, productImage: i.image,
-            price: i.price, quantity: i.quantity, total: i.price * i.quantity,
-          })),
-        })
-        setOrderNumber(result.orderNumber)
-        clearCart()
-        setOrderDone(true)
-        setPlacing(false)
-        return
-      }
-
       const rzp = new window.Razorpay(options)
       rzp.open()
     } catch (err) {
-      console.error("[v0] Razorpay error:", err)
+      setOrderError(err instanceof Error ? err.message : String(err))
       setPlacing(false)
     }
   }
@@ -551,8 +566,8 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold text-[#c9744e]">FREE</p>
-                    <p className="text-[10px] text-neutral-500">On orders above ₹{FREE_SHIPPING_THRESHOLD}</p>
+                    <p className="text-xs font-bold text-[#6b8f5e]">FREE</p>
+                    <p className="text-[10px] text-neutral-500">Always free on all orders</p>
                   </div>
                   <input
                     type="radio"
@@ -608,71 +623,45 @@ export default function CheckoutPage() {
             </div>
             <p className="mb-4 text-[11px] text-neutral-500">All transactions are secure and encrypted.</p>
 
-            <div className="flex flex-col gap-3">
-              {/* UPI / Net Banking / Wallets */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "upi" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "upi"} />
-                  <span className="text-xs font-semibold text-neutral-800">UPI / Net Banking / Wallets</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1280px-UPI-Logo-vector.svg.png" alt="UPI" className="h-4 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/2560px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-3 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/2560px-Google_Pay_Logo.svg.png" alt="GPay" className="h-4 w-auto" />
-                </div>
-                <input type="radio" name="payment" value="upi" checked={paymentMethod === "upi"} onChange={() => setPaymentMethod("upi")} className="sr-only" />
-              </label>
+          <div className="flex flex-col gap-3">
+                {/* Online Payment */}
+                <label
+                  className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
+                    paymentMethod === "online" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioDot active={paymentMethod === "online"} />
+                    <div>
+                      <p className="text-xs font-semibold text-neutral-800">Online Payment</p>
+                      <p className="text-[10px] text-neutral-500">UPI, Card, Net Banking, Wallets</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1280px-UPI-Logo-vector.svg.png" alt="UPI" className="h-4 w-auto" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" className="h-3 w-auto opacity-70" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" className="h-4 w-auto opacity-70" />
+                  </div>
+                  <input type="radio" name="payment" value="online" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} className="sr-only" />
+                </label>
 
-              {/* Credit / Debit Card */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "card" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "card"} />
-                  <span className="text-xs font-semibold text-neutral-800">Credit / Debit Card</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" className="h-4 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" className="h-4 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/RuPay.svg/2560px-RuPay.svg.png" alt="RuPay" className="h-4 w-auto" />
-                </div>
-                <input type="radio" name="payment" value="card" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} className="sr-only" />
-              </label>
-
-              {/* Net Banking */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "netbanking" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "netbanking"} />
-                  <span className="text-xs font-semibold text-neutral-800">Net Banking</span>
-                </div>
-                <Building2 className="h-5 w-5 text-neutral-400" />
-                <input type="radio" name="payment" value="netbanking" checked={paymentMethod === "netbanking"} onChange={() => setPaymentMethod("netbanking")} className="sr-only" />
-              </label>
-
-              {/* Cash on Delivery */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "cod" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "cod"} />
-                  <span className="text-xs font-semibold text-neutral-800">Cash on Delivery</span>
-                </div>
-                <Package className="h-5 w-5 text-neutral-400" />
-                <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="sr-only" />
-              </label>
-            </div>
+                {/* Cash on Delivery */}
+                <label
+                  className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
+                    paymentMethod === "cod" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioDot active={paymentMethod === "cod"} />
+                    <div>
+                      <p className="text-xs font-semibold text-neutral-800">Cash on Delivery</p>
+                      <p className="text-[10px] text-neutral-500">Pay when your order arrives</p>
+                    </div>
+                  </div>
+                  <Package className="h-5 w-5 text-neutral-400" />
+                  <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="sr-only" />
+                </label>
+              </div>
 
             {/* Secure payments note */}
             <div className="mt-5 flex items-center gap-3 rounded-xl border border-[#f0d8c8] bg-[#fdf6f2] p-3">
@@ -743,17 +732,13 @@ export default function CheckoutPage() {
                     {shippingCost === 0 ? "FREE" : `₹${shippingCost}`}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-neutral-600">Tax (18%)</span>
-                  <span className="font-semibold">₹{tax}</span>
-                </div>
                 <div className="flex justify-between border-t border-[#f0d8c8] pt-3">
                   <span className="text-base font-extrabold text-neutral-900">Grand Total</span>
                   <span className="text-base font-extrabold text-[#c9744e]">
                     ₹{grandTotal.toLocaleString("en-IN")}
                   </span>
                 </div>
-                <p className="text-[11px] text-neutral-500">Inclusive of all taxes</p>
+                <p className="text-[11px] text-neutral-500">Taxes included in product price</p>
               </div>
 
               {/* Coupon */}
@@ -782,15 +767,28 @@ export default function CheckoutPage() {
                 )}
               </div>
 
+              {/* Order error */}
+              {orderError && (
+                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {orderError}
+                </div>
+              )}
+
               {/* Place Order button */}
               <button
                 onClick={handlePlaceOrder}
-                disabled={placing || items.length === 0}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#8B4513] py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#7a3c10] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={placing || !isFormValid}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#8B4513] py-3.5 text-sm font-bold text-white transition-colors hover:bg-[#7a3c10] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Lock className="h-4 w-4" />
                 {placing ? "Processing..." : "Place Order"}
               </button>
+
+              {!isFormValid && items.length > 0 && (
+                <p className="mt-2 text-center text-[11px] text-red-500">
+                  Please fill in all required fields before placing your order.
+                </p>
+              )}
 
               <p className="mt-3 text-[11px] leading-relaxed text-neutral-500">
                 By placing this order, you agree to our{" "}

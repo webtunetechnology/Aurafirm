@@ -107,46 +107,62 @@ export interface CreateOrderPayload {
 }
 
 export async function createOrder(payload: CreateOrderPayload) {
-  const supabase = await createClient()
+  // Always use service-role admin client — customer is not authenticated
+  // at checkout time, so the anon client would be blocked by RLS on every table
+  const adminSupabase = createAdminClient()
 
-  // Auto sign-up customer using phone as email identifier
-  const fakeEmail = `${payload.customerPhone.replace(/\D/g, '')}@aurafirm.customer`
-  const password = payload.customerPhone.replace(/\D/g, '')
+  // Normalize to exactly 10 digits — strip country code (91/+91) if present
+  let digits = payload.customerPhone.replace(/\D/g, '')
+  if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2)
+  if (digits.length === 11 && digits.startsWith('0'))  digits = digits.slice(1)
+  const fakeEmail = `${digits}@aurafirm.customer`
+  const password = digits
 
   let customerId: string | null = null
 
-  // Try to sign in first, if not found sign up
-  const { data: signInData } = await supabase.auth.signInWithPassword({
-    email: fakeEmail,
-    password,
-  })
+  // Check if an account already exists for this phone number
+  const { data: existingUser } = await adminSupabase
+    .from('profiles')
+    .select('id')
+    .eq('phone', digits)
+    .maybeSingle()
 
-  if (signInData?.user) {
-    customerId = signInData.user.id
+  if (existingUser?.id) {
+    customerId = existingUser.id
   } else {
-    const { data: signUpData } = await supabase.auth.signUp({
+    // Create a pre-confirmed account — no email verification gate
+    const { data: created, error: createErr } = await adminSupabase.auth.admin.createUser({
       email: fakeEmail,
       password,
-      options: {
-        data: {
-          full_name: payload.customerName,
-          phone: payload.customerPhone,
-          is_admin: false,
-        },
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-          `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/auth/callback`,
+      email_confirm: true,
+      user_metadata: {
+        full_name: payload.customerName,
+        phone: payload.customerPhone,
+        is_admin: false,
       },
     })
-    customerId = signUpData?.user?.id ?? null
+    if (createErr) {
+      console.error('[v0] createUser error:', createErr.message)
+    }
+    customerId = created?.user?.id ?? null
   }
 
-  // Generate order number
-  const { data: orderNumData } = await supabase.rpc('generate_order_number')
+  // Upsert profile row so customer name/phone is always up-to-date
+  if (customerId) {
+    await adminSupabase.from('profiles').upsert({
+      id: customerId,
+      full_name: payload.customerName,
+      phone: digits,
+      is_admin: false,
+    }, { onConflict: 'id' })
+  }
+
+  // Generate order number — use admin client to bypass RLS
+  const { data: orderNumData } = await adminSupabase.rpc('generate_order_number')
   const orderNumber = orderNumData as string
 
-  // Insert order
-  const { data: order, error: orderError } = await supabase
+  // Insert order — use admin client: customer is not logged in at checkout time
+  const { data: order, error: orderError } = await adminSupabase
     .from('orders')
     .insert({
       order_number: orderNumber,
@@ -174,7 +190,7 @@ export async function createOrder(payload: CreateOrderPayload) {
 
   if (orderError) throw orderError
 
-  // Insert order items
+  // Insert order items — admin client, same reason
   const orderItems = payload.items.map((item) => ({
     order_id: order.id,
     product_id: item.productId ?? null,
@@ -185,7 +201,7 @@ export async function createOrder(payload: CreateOrderPayload) {
     total: item.total,
   }))
 
-  const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
+  const { error: itemsError } = await adminSupabase.from('order_items').insert(orderItems)
   if (itemsError) throw itemsError
 
   revalidatePath('/account/orders')
@@ -209,7 +225,7 @@ export async function getMyOrders() {
   return data
 }
 
-// ─── Admin ─────────────────────────────────────────────────────────────────────
+// ─── Admin ───────────────────────────────────────────��─────────────────────────
 
 export async function adminGetOrders(filters?: {
   status?: string

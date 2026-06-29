@@ -24,31 +24,8 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
-const defaultItems: CartItem[] = [
-  {
-    id: "gluta-tab",
-    name: "Gluta Tab",
-    subtitle: "Radiance & Glow Effervescent Tabs",
-    price: 1199,
-    image:
-      "https://res.cloudinary.com/df01whs60/image/upload/v1782241602/ChatGPT_Image_Jun_19__2026__10_00_30_PM-removebg-preview_hsizp4.png",
-    quantity: 1,
-    tags: ["Vegan", "Dermatest Tested"],
-  },
-  {
-    id: "premium-face-serum",
-    name: "Premium Face Serum",
-    subtitle: "With Niacinamide & Hyaluronic Acid",
-    price: 1299,
-    image:
-      "https://res.cloudinary.com/df01whs60/image/upload/v1782241556/front-profile_page-0001-removebg-preview_syyqyk.png",
-    quantity: 1,
-    tags: ["Vegan", "Dermatest Tested"],
-  },
-]
-
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(defaultItems)
+  const [items, setItems] = useState<CartItem[]>([])
 
   const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
