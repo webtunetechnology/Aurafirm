@@ -18,7 +18,6 @@ import {
   ShoppingCart,
   Heart,
   Tag,
-  Building2,
   Package,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
@@ -71,7 +70,7 @@ const DISCOUNT = 200
 const SHIPPING_EXPRESS = 149
 const TAX_RATE = 0.18
 
-type PaymentMethod = "upi" | "card" | "netbanking" | "cod"
+type PaymentMethod = "online" | "cod"
 
 const inputCls =
   "w-full rounded-lg border border-[#e3c8bb] bg-white px-3 py-2 text-sm text-neutral-800 placeholder-neutral-400 outline-none focus:border-[#c9744e] focus:ring-1 focus:ring-[#c9744e]/30"
@@ -97,7 +96,7 @@ export default function CheckoutPage() {
   const [delivery, setDelivery] = useState<"standard" | "express">("standard")
 
   // Payment
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi")
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online")
 
   // Coupon
   const [coupon, setCoupon] = useState("")
@@ -224,7 +223,7 @@ export default function CheckoutPage() {
               tax,
               grandTotal,
               couponCode: couponApplied ? coupon : undefined,
-              paymentMethod: paymentMethod === "cod" ? "cod" : "razorpay",
+              paymentMethod: "razorpay",
               paymentStatus: "paid",
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
@@ -607,71 +606,45 @@ export default function CheckoutPage() {
             </div>
             <p className="mb-4 text-[11px] text-neutral-500">All transactions are secure and encrypted.</p>
 
-            <div className="flex flex-col gap-3">
-              {/* UPI / Net Banking / Wallets */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "upi" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "upi"} />
-                  <span className="text-xs font-semibold text-neutral-800">UPI / Net Banking / Wallets</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1280px-UPI-Logo-vector.svg.png" alt="UPI" className="h-4 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/2560px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-3 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/2560px-Google_Pay_Logo.svg.png" alt="GPay" className="h-4 w-auto" />
-                </div>
-                <input type="radio" name="payment" value="upi" checked={paymentMethod === "upi"} onChange={() => setPaymentMethod("upi")} className="sr-only" />
-              </label>
+          <div className="flex flex-col gap-3">
+                {/* Online Payment */}
+                <label
+                  className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
+                    paymentMethod === "online" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioDot active={paymentMethod === "online"} />
+                    <div>
+                      <p className="text-xs font-semibold text-neutral-800">Online Payment</p>
+                      <p className="text-[10px] text-neutral-500">UPI, Card, Net Banking, Wallets</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1280px-UPI-Logo-vector.svg.png" alt="UPI" className="h-4 w-auto" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" className="h-3 w-auto opacity-70" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" className="h-4 w-auto opacity-70" />
+                  </div>
+                  <input type="radio" name="payment" value="online" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} className="sr-only" />
+                </label>
 
-              {/* Credit / Debit Card */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "card" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "card"} />
-                  <span className="text-xs font-semibold text-neutral-800">Credit / Debit Card</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa" className="h-4 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" className="h-4 w-auto" />
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/RuPay.svg/2560px-RuPay.svg.png" alt="RuPay" className="h-4 w-auto" />
-                </div>
-                <input type="radio" name="payment" value="card" checked={paymentMethod === "card"} onChange={() => setPaymentMethod("card")} className="sr-only" />
-              </label>
-
-              {/* Net Banking */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "netbanking" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "netbanking"} />
-                  <span className="text-xs font-semibold text-neutral-800">Net Banking</span>
-                </div>
-                <Building2 className="h-5 w-5 text-neutral-400" />
-                <input type="radio" name="payment" value="netbanking" checked={paymentMethod === "netbanking"} onChange={() => setPaymentMethod("netbanking")} className="sr-only" />
-              </label>
-
-              {/* Cash on Delivery */}
-              <label
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
-                  paymentMethod === "cod" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioDot active={paymentMethod === "cod"} />
-                  <span className="text-xs font-semibold text-neutral-800">Cash on Delivery</span>
-                </div>
-                <Package className="h-5 w-5 text-neutral-400" />
-                <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="sr-only" />
-              </label>
-            </div>
+                {/* Cash on Delivery */}
+                <label
+                  className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors ${
+                    paymentMethod === "cod" ? "border-[#8B4513] bg-[#fdf6f2]" : "border-[#e3c8bb]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioDot active={paymentMethod === "cod"} />
+                    <div>
+                      <p className="text-xs font-semibold text-neutral-800">Cash on Delivery</p>
+                      <p className="text-[10px] text-neutral-500">Pay when your order arrives</p>
+                    </div>
+                  </div>
+                  <Package className="h-5 w-5 text-neutral-400" />
+                  <input type="radio" name="payment" value="cod" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="sr-only" />
+                </label>
+              </div>
 
             {/* Secure payments note */}
             <div className="mt-5 flex items-center gap-3 rounded-xl border border-[#f0d8c8] bg-[#fdf6f2] p-3">
