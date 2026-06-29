@@ -17,6 +17,7 @@ import {
   TrendingUp,
   MessageSquare,
   Sparkles,
+  BookOpen,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -31,6 +32,7 @@ const navItems = [
   { label: "Coupons",   href: "/admin/coupons",     icon: Tag },
   { label: "Reviews",   href: "/admin/reviews",    icon: Star },
   { label: "Contacts",      href: "/admin/contacts",      icon: MessageSquare },
+  { label: "Our Story",     href: "/admin/our-story",     icon: BookOpen },
   { label: "Why AURAFIRM",  href: "/admin/why-aurafirm",  icon: Sparkles },
   { label: "Settings",      href: "/admin/settings",      icon: Settings },
 ]

@@ -443,6 +443,97 @@ export async function adminUpdateContactStatus(id: string, status: 'read' | 'rep
   revalidatePath('/admin/contacts')
 }
 
+// ─── Our Story ───────────────────────────────────────────────────────────────
+
+export async function getOurStoryContent() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('our_story_content')
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getOurStoryMilestones() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('our_story_milestones')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getOurStoryValues() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('our_story_values')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function adminGetOurStoryData() {
+  const supabase = createAdminClient()
+  const [{ data: content }, { data: milestones }, { data: values }] = await Promise.all([
+    supabase.from('our_story_content').select('*').single(),
+    supabase.from('our_story_milestones').select('*').order('sort_order'),
+    supabase.from('our_story_values').select('*').order('sort_order'),
+  ])
+  return { content, milestones: milestones ?? [], values: values ?? [] }
+}
+
+export async function adminUpdateOurStoryContent(patch: Record<string, string>) {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('our_story_content')
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq('id', '00000000-0000-0000-0000-000000000001')
+  if (error) throw error
+  revalidatePath('/about')
+  revalidatePath('/admin/our-story')
+}
+
+export async function adminUpsertOurStoryMilestone(row: {
+  id?: string; sort_order: number; year: string; title: string; description: string; is_active: boolean
+}) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('our_story_milestones').upsert(row)
+  if (error) throw error
+  revalidatePath('/about')
+  revalidatePath('/admin/our-story')
+}
+
+export async function adminDeleteOurStoryMilestone(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('our_story_milestones').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/about')
+  revalidatePath('/admin/our-story')
+}
+
+export async function adminUpsertOurStoryValue(row: {
+  id?: string; sort_order: number; icon: string; title: string; description: string; is_active: boolean
+}) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('our_story_values').upsert(row)
+  if (error) throw error
+  revalidatePath('/about')
+  revalidatePath('/admin/our-story')
+}
+
+export async function adminDeleteOurStoryValue(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('our_story_values').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/about')
+  revalidatePath('/admin/our-story')
+}
+
 // ─── Why AURAFIRM Pillars ─────────────────────────────────────────────────────
 
 export async function getWhyPillars() {
