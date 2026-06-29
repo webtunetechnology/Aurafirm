@@ -112,6 +112,7 @@ export default function CheckoutPage() {
   const [orderDone, setOrderDone] = useState(false)
   const [orderId, setOrderId] = useState("")
   const [orderNumber, setOrderNumber] = useState("")
+  const [orderError, setOrderError] = useState("")
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
   const shippingCost = delivery === "express" ? SHIPPING_EXPRESS : (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_STANDARD)
@@ -151,7 +152,6 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     if (items.length === 0) return
     setPlacing(true)
-    console.log("[v0] handlePlaceOrder called, paymentMethod:", paymentMethod)
 
     try {
       // COD: skip Razorpay entirely
@@ -160,7 +160,6 @@ export default function CheckoutPage() {
           fullName: billing.fullName, address: billing.address,
           apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin,
         }
-        console.log("[v0] COD order starting, phone:", billing.phone)
         const result = await createOrder({
           customerName: billing.fullName,
           customerEmail: billing.email,
@@ -177,7 +176,6 @@ export default function CheckoutPage() {
             price: i.price, quantity: i.quantity, total: i.price * i.quantity,
           })),
         })
-        console.log("[v0] COD order created:", result.orderNumber)
         setOrderNumber(result.orderNumber)
         clearCart()
         setOrderDone(true)
@@ -257,7 +255,7 @@ export default function CheckoutPage() {
       const rzp = new window.Razorpay(options)
       rzp.open()
     } catch (err) {
-      console.error("[v0] Razorpay error:", err)
+      setOrderError(err instanceof Error ? err.message : String(err))
       setPlacing(false)
     }
   }
@@ -784,6 +782,13 @@ export default function CheckoutPage() {
                   </p>
                 )}
               </div>
+
+              {/* Order error */}
+              {orderError && (
+                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {orderError}
+                </div>
+              )}
 
               {/* Place Order button */}
               <button
