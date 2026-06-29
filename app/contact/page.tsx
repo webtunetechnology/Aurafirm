@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   Mail, Phone, MapPin, Clock, Send, CheckCircle,
-  ShoppingBag, ChevronRight, MessageSquare,
+  ShoppingBag, MessageSquare,
 } from "lucide-react"
 import { submitContactMessage } from "@/lib/actions"
 import UserMenu from "@/components/UserMenu"
@@ -76,14 +76,6 @@ export default function ContactPage() {
         </div>
       </header>
 
-      {/* Breadcrumb */}
-      <div className="border-b border-[#f0e0d6] bg-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-6 py-3 text-xs text-neutral-500">
-          <Link href="/" className="hover:text-neutral-700">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-neutral-800">Contact Us</span>
-        </div>
-      </div>
 
       {/* Hero */}
       <div className="bg-white py-12">
