@@ -113,7 +113,10 @@ export async function createOrder(payload: CreateOrderPayload) {
   // 2. Bypass RLS when upserting profiles
   const adminSupabase = createAdminClient()
 
-  const digits = payload.customerPhone.replace(/\D/g, '')
+  // Normalize to exactly 10 digits — strip country code (91/+91) if present
+  let digits = payload.customerPhone.replace(/\D/g, '')
+  if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2)
+  if (digits.length === 11 && digits.startsWith('0'))  digits = digits.slice(1)
   const fakeEmail = `${digits}@aurafirm.customer`
   const password = digits
 
@@ -224,7 +227,7 @@ export async function getMyOrders() {
   return data
 }
 
-// ─── Admin ─────────────────────────────────────────────────────────────────────
+// ─── Admin ───────────────────────────────────────────��─────────────────────────
 
 export async function adminGetOrders(filters?: {
   status?: string
