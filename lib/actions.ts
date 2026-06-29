@@ -108,37 +108,52 @@ export interface CreateOrderPayload {
 
 export async function createOrder(payload: CreateOrderPayload) {
   const supabase = await createClient()
+  // Use service-role client for account management so we can:
+  // 1. Create confirmed accounts (no email verification needed)
+  // 2. Bypass RLS when upserting profiles
+  const adminSupabase = createAdminClient()
 
-  // Auto sign-up customer using phone as email identifier
-  const fakeEmail = `${payload.customerPhone.replace(/\D/g, '')}@aurafirm.customer`
-  const password = payload.customerPhone.replace(/\D/g, '')
+  const digits = payload.customerPhone.replace(/\D/g, '')
+  const fakeEmail = `${digits}@aurafirm.customer`
+  const password = digits
 
   let customerId: string | null = null
 
-  // Try to sign in first, if not found sign up
-  const { data: signInData } = await supabase.auth.signInWithPassword({
-    email: fakeEmail,
-    password,
-  })
+  // Check if an account already exists for this phone number
+  const { data: existingUser } = await adminSupabase
+    .from('profiles')
+    .select('id')
+    .eq('phone', digits)
+    .maybeSingle()
 
-  if (signInData?.user) {
-    customerId = signInData.user.id
+  if (existingUser?.id) {
+    customerId = existingUser.id
   } else {
-    const { data: signUpData } = await supabase.auth.signUp({
+    // Create a pre-confirmed account — no email verification gate
+    const { data: created, error: createErr } = await adminSupabase.auth.admin.createUser({
       email: fakeEmail,
       password,
-      options: {
-        data: {
-          full_name: payload.customerName,
-          phone: payload.customerPhone,
-          is_admin: false,
-        },
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-          `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/auth/callback`,
+      email_confirm: true,
+      user_metadata: {
+        full_name: payload.customerName,
+        phone: payload.customerPhone,
+        is_admin: false,
       },
     })
-    customerId = signUpData?.user?.id ?? null
+    if (createErr) {
+      console.error('[v0] createUser error:', createErr.message)
+    }
+    customerId = created?.user?.id ?? null
+  }
+
+  // Upsert profile row so customer name/phone is always up-to-date
+  if (customerId) {
+    await adminSupabase.from('profiles').upsert({
+      id: customerId,
+      full_name: payload.customerName,
+      phone: digits,
+      is_admin: false,
+    }, { onConflict: 'id' })
   }
 
   // Generate order number
