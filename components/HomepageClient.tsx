@@ -256,14 +256,15 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
     <main className="min-h-screen w-full bg-[#faf5f3] font-serif text-neutral-800">
       {/* Top announcement bar */}
       <div className="flex items-center justify-between bg-[#8a4a32] px-4 py-2 text-[11px] text-white sm:px-8">
-        <div className="flex-1 text-center tracking-wide">
-          <span className="opacity-90">
-            {"Also available on "}
-            <strong>Amazon</strong>
-            {" & "}
-            <strong>Flipkart</strong>
-            {" — Shop now on your favourite platform"}
-          </span>
+        <div className="flex flex-1 items-center justify-center gap-3">
+          <span className="text-white/80">Also available on</span>
+          <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white/15 px-2.5 py-1 transition-colors hover:bg-white/25">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png" alt="Amazon" className="h-3.5 w-auto brightness-0 invert" />
+          </a>
+          <span className="text-white/40">&</span>
+          <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white/15 px-2.5 py-1 transition-colors hover:bg-white/25">
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/7/74/Flipkart_logo.svg/2560px-Flipkart_logo.svg.png" alt="Flipkart" className="h-3.5 w-auto brightness-0 invert" />
+          </a>
         </div>
         <div className="hidden items-center gap-3 sm:flex">
           <Camera className="h-3.5 w-3.5" />

@@ -113,13 +113,16 @@ export default function CartPage() {
       <div className="bg-[#8B4513] text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 md:px-6">
           <span className="hidden flex-1 md:block" />
-          <p className="flex-1 text-center text-[10px] sm:text-xs">
-            {"Also available on "}
-            <span className="font-semibold">Amazon</span>
-            {" & "}
-            <span className="font-semibold">Flipkart</span>
-            {" \u2014 Shop now on your favourite platform"}
-          </p>
+          <div className="flex flex-1 items-center justify-center gap-3">
+            <span className="text-white/80 text-[10px] sm:text-xs">Also available on</span>
+            <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white/15 px-2.5 py-1 transition-colors hover:bg-white/25">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png" alt="Amazon" className="h-3 sm:h-3.5 w-auto brightness-0 invert" />
+            </a>
+            <span className="text-white/40 text-[10px]">&</span>
+            <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white/15 px-2.5 py-1 transition-colors hover:bg-white/25">
+              <img src="https://upload.wikimedia.org/wikipedia/en/thumb/7/74/Flipkart_logo.svg/2560px-Flipkart_logo.svg.png" alt="Flipkart" className="h-3 sm:h-3.5 w-auto brightness-0 invert" />
+            </a>
+          </div>
           <div className="flex flex-1 items-center justify-end gap-3 text-white/90">
             <a href="#" aria-label="Photos"><Camera className="h-3.5 w-3.5" /></a>
             <a href="#" aria-label="Share"><Share2 className="h-3.5 w-3.5" /></a>
