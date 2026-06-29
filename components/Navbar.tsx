@@ -57,7 +57,7 @@ export default function Navbar() {
             <img
               src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1782744189/download-removebg-preview_rhfgf8.png"
               alt="Flipkart"
-              className="h-4 w-auto"
+              className="h-6 w-auto"
             />
           </a>
         </div>
