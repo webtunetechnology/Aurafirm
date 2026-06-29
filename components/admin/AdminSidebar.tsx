@@ -15,6 +15,7 @@ import {
   LogOut,
   Layers,
   TrendingUp,
+  MessageSquare,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -27,8 +28,9 @@ const navItems = [
   { label: "Analytics", href: "/admin/analytics",   icon: BarChart3 },
   { label: "Customers", href: "/admin/customers",   icon: Users },
   { label: "Coupons",   href: "/admin/coupons",     icon: Tag },
-  { label: "Reviews",   href: "/admin/reviews",     icon: Star },
-  { label: "Settings",  href: "/admin/settings",    icon: Settings },
+  { label: "Reviews",   href: "/admin/reviews",    icon: Star },
+  { label: "Contacts",  href: "/admin/contacts",   icon: MessageSquare },
+  { label: "Settings",  href: "/admin/settings",   icon: Settings },
 ]
 
 export default function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {

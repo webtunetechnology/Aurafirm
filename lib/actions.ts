@@ -402,6 +402,49 @@ export async function adminGetDashboardStats() {
   }
 }
 
+// ─── Contact Messages ─────────────────────────────────────────────────────────
+
+export async function submitContactMessage(payload: {
+  name: string
+  email: string
+  phone?: string
+  subject: string
+  message: string
+}) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('contact_messages').insert({
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone ?? null,
+    subject: payload.subject,
+    message: payload.message,
+  })
+  if (error) throw error
+  return { success: true }
+}
+
+export async function adminGetContactMessages() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('contact_messages')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function adminUpdateContactStatus(id: string, status: 'read' | 'replied') {
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('contact_messages')
+    .update({ status })
+    .eq('id', id)
+  if (error) throw error
+  revalidatePath('/admin/contacts')
+}
+
+// ─── Customers ────────────────────────────────────────────────────────────────
+
 export async function adminGetCustomers() {
   const supabase = createAdminClient()
   // Join profiles with orders to get order count and total spend
@@ -471,7 +514,7 @@ export async function adminToggleCoupon(id: string, is_active: boolean) {
   revalidatePath('/admin/coupons')
 }
 
-// ─── Inventory ──────────────────────────────────────────────────────────────────
+// ─── Inventory ──────────────────────────────────────────��───────────────────────
 
 export async function adminUpdateStock(productId: string, stock: number) {
   const supabase = createAdminClient()
