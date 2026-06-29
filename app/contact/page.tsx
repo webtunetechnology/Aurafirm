@@ -2,12 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Navbar from "@/components/Navbar"
 import {
-  Mail, Phone, MapPin, Clock, Send, CheckCircle,
-  ShoppingBag, MessageSquare,
+  Mail, Phone, MapPin, Clock, Send, CheckCircle, MessageSquare,
 } from "lucide-react"
 import { submitContactMessage } from "@/lib/actions"
-import UserMenu from "@/components/UserMenu"
 
 const SUBJECTS = [
   "Order Query",
@@ -56,29 +55,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-[#faf5f3] font-sans">
-      {/* Navbar */}
-      <header className="sticky top-0 z-30 border-b border-[#f0e0d6] bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" aria-label="AURAFIRM home">
-            <img
-              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-              alt="AURAFIRM logo"
-              className="h-10 w-auto object-contain"
-            />
-          </Link>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-neutral-600 md:flex">
-            <Link href="/" className="hover:text-neutral-900">Home</Link>
-            <Link href="/product" className="hover:text-neutral-900">Products</Link>
-            <Link href="/contact" className="text-[#c9744e]">Contact</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/cart" className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#e3c8bb] text-neutral-600 hover:bg-[#fdf6f2]">
-              <ShoppingBag className="h-4 w-4" />
-            </Link>
-            <UserMenu />
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
 
       {/* Hero */}

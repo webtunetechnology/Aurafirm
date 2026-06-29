@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Navbar from "@/components/Navbar"
 import {
   ChevronRight,
   ChevronDown,
@@ -148,53 +149,7 @@ export default function ProductPageClient({
 
   return (
     <main className="min-h-screen bg-white text-gray-900">
-      {/* Announcement bar */}
-      <div className="bg-[#8B4513] text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 md:px-6">
-          <span className="hidden flex-1 md:block" />
-          <div className="flex flex-1 items-center justify-center gap-3">
-            <span className="text-white/80 text-[10px] sm:text-xs">Also available on</span>
-            <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/amazon/default.svg" alt="Amazon" className="h-3.5 sm:h-4 w-auto" />
-            </a>
-            <span className="text-white/40 text-[10px]">&</span>
-            <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-              <img src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1782744189/download-removebg-preview_rhfgf8.png" alt="Flipkart" className="h-5 sm:h-6 w-auto" />
-            </a>
-          </div>
-          <div className="flex flex-1 items-center justify-end gap-3 text-white/90">
-            <a href="#" aria-label="Photos" className="transition-opacity hover:opacity-70"><Camera className="h-4 w-4" /></a>
-            <a href="#" aria-label="Email"  className="transition-opacity hover:opacity-70"><AtSign className="h-4 w-4" /></a>
-            <a href="#" aria-label="Share"  className="transition-opacity hover:opacity-70"><Share2 className="h-4 w-4" /></a>
-            <a href="#" aria-label="Video"  className="transition-opacity hover:opacity-70"><Play className="h-4 w-4" /></a>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 md:px-6">
-          <Link href="/" className="flex shrink-0 items-center" aria-label="AuraFirm home">
-            <img
-              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-              alt="AURAFIRM logo"
-              className="h-14 w-auto object-contain"
-            />
-          </Link>
-          <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
-            <Link href="/" className="border-b-2 border-[#8B4513] pb-0.5 text-base font-medium text-[#8B4513]">Shop</Link>
-            <a href="#" className="text-base text-gray-700 transition-colors hover:text-[#8B4513]">Our Story</a>
-            <a href="#" className="text-base text-gray-700 transition-colors hover:text-[#8B4513]">Why AURAFIRM</a>
-            <a href="#" className="text-base text-gray-700 transition-colors hover:text-[#8B4513]">Contact</a>
-          </nav>
-          <div className="flex shrink-0 items-center gap-5 text-gray-700">
-            <button type="button" aria-label="Search"   className="transition-colors hover:text-[#8B4513]"><Search className="h-5 w-5" /></button>
-            <Link href="/cart" aria-label="Cart"        className="transition-colors hover:text-[#8B4513]"><ShoppingCart className="h-5 w-5" /></Link>
-            <button type="button" aria-label="Wishlist" className="transition-colors hover:text-[#8B4513]"><Heart className="h-5 w-5" /></button>
-            <UserMenu iconClassName="h-5 w-5" />
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
         {/* Breadcrumb */}

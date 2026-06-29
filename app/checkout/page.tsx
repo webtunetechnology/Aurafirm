@@ -10,19 +10,12 @@ import {
   Leaf,
   ChevronRight,
   Check,
-  Camera,
-  Share2,
-  Play,
-  ArrowLeft,
-  Search,
-  ShoppingCart,
-  Heart,
   Tag,
   Package,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { createOrder, validateCoupon } from "@/lib/actions"
-import UserMenu from "@/components/UserMenu"
+import SiteNavbar from "@/components/Navbar"
 
 declare global {
   interface Window {
@@ -37,8 +30,6 @@ const INDIAN_STATES = [
   "Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana",
   "Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu & Kashmir","Ladakh",
 ]
-
-const navItems = ["Shop", "Our Story", "Why AURAFIRM", "Contact"]
 
 const footerColumns = [
   { title: "Company", links: ["About Us", "Blogs", "Contact Us", "Careers"] },
@@ -277,8 +268,7 @@ export default function CheckoutPage() {
   if (orderDone) {
     return (
       <div className="min-h-screen bg-[#faf5f3] font-sans text-neutral-800">
-        <AnnouncementBar />
-        <Navbar itemCount={itemCount} />
+        <SiteNavbar />
         <main className="mx-auto flex max-w-xl flex-col items-center gap-6 px-4 py-20 text-center">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#eef5eb]">
             <Check className="h-12 w-12 text-[#6b8f5e]" />
@@ -322,8 +312,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#faf5f3] font-sans text-neutral-800">
-      <AnnouncementBar />
-      <Navbar itemCount={itemCount} />
+      <SiteNavbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8 md:px-8">
         {/* Heading + breadcrumb */}
@@ -836,81 +825,7 @@ function RadioDot({ active }: { active: boolean }) {
   )
 }
 
-function AnnouncementBar() {
-  return (
-    <div className="bg-[#8B4513] text-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 md:px-6">
-        <span className="hidden flex-1 md:block" />
-          <div className="flex flex-1 items-center justify-center gap-3">
-            <span className="text-white/80 text-[10px] sm:text-xs">Also available on</span>
-            <a href="https://www.amazon.in" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/amazon/default.svg" alt="Amazon" className="h-3.5 sm:h-4 w-auto" />
-            </a>
-            <span className="text-white/40 text-[10px]">&</span>
-            <a href="https://www.flipkart.com" target="_blank" rel="noopener noreferrer" className="flex items-center rounded bg-white px-2.5 py-0.5 transition-opacity hover:opacity-90">
-              <img src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1782744189/download-removebg-preview_rhfgf8.png" alt="Flipkart" className="h-5 sm:h-6 w-auto" />
-            </a>
-          </div>
-        <div className="flex flex-1 items-center justify-end gap-3 text-white/90">
-          <a href="#" aria-label="Photos"><Camera className="h-3.5 w-3.5" /></a>
-          <a href="#" aria-label="Share"><Share2 className="h-3.5 w-3.5" /></a>
-          <a href="#" aria-label="Video"><Play className="h-3.5 w-3.5" /></a>
-          <a href="#" aria-label="Sign out"><ArrowLeft className="h-3.5 w-3.5" /></a>
-        </div>
-      </div>
-    </div>
-  )
-}
 
-function Navbar({ itemCount }: { itemCount: number }) {
-  return (
-    <header className="border-b border-[#f0d8c8] bg-[#faf5f3]">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 md:px-8">
-        <Link href="/" aria-label="AURAFIRM home">
-          <Image
-            src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-            alt="AURAFIRM logo"
-            width={160}
-            height={56}
-            className="h-14 w-auto object-contain"
-          />
-        </Link>
-        <nav className="hidden items-center gap-8 text-sm md:flex" aria-label="Primary">
-          {navItems.map((item, i) => (
-            <a
-              key={item}
-              href="#"
-              className={`transition-colors hover:text-[#b86244] ${
-                i === 0
-                  ? "border-b-2 border-[#b86244] pb-0.5 font-semibold text-[#b86244]"
-                  : "text-neutral-700"
-              }`}
-            >
-              {item}
-            </a>
-          ))}
-        </nav>
-        <div className="flex items-center gap-4 text-neutral-700">
-          <button aria-label="Search" className="transition-colors hover:text-[#b86244]">
-            <Search className="h-4 w-4" />
-          </button>
-          <Link href="/cart" aria-label="Cart" className="relative transition-colors hover:text-[#b86244]">
-            <ShoppingCart className="h-4 w-4" />
-            {itemCount > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c9744e] text-[9px] font-bold text-white">
-                {itemCount}
-              </span>
-            )}
-          </Link>
-          <button aria-label="Wishlist" className="transition-colors hover:text-[#b86244]">
-            <Heart className="h-4 w-4" />
-          </button>
-          <UserMenu />
-        </div>
-      </div>
-    </header>
-  )
-}
 
 function BrandBar() {
   return (
