@@ -20,7 +20,6 @@ import {
   Leaf,
   ChevronRight,
   ArrowLeft,
-  Tag,
   MessageCircle,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
@@ -86,7 +85,6 @@ const TAX_RATE = 0.18
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, addItem } = useCart()
-  const [couponCode, setCouponCode] = useState("")
   const [wishlist, setWishlist] = useState<Set<string>>(new Set())
   const [wishlistSuggested, setWishlistSuggested] = useState<Set<string>>(new Set())
 
@@ -459,22 +457,7 @@ export default function CartPage() {
                 </p>
               </div>
 
-              {/* Coupon code */}
-              <div className="mt-5 flex items-center overflow-hidden rounded-xl border border-[#e3c8bb]">
-                <div className="flex flex-1 items-center gap-2 px-3 py-2 text-neutral-500">
-                  <Tag className="h-4 w-4 shrink-0" />
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Coupon Code"
-                    className="w-full bg-transparent text-sm text-neutral-800 placeholder-neutral-400 outline-none"
-                  />
-                </div>
-                <button className="bg-[#c9744e] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b86244]">
-                  Apply
-                </button>
-              </div>
+
 
               {/* CTA buttons */}
               <Link
