@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useCart } from "@/context/CartContext"
+import { useCart } from "@/lib/cart-context"
 import { useState } from "react"
 import {
   ShoppingBag,
