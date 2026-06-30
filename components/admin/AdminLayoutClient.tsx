@@ -12,6 +12,7 @@ interface AdminLayoutClientProps {
 
 export default function AdminLayoutClient({ adminName, pendingCount, children }: AdminLayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   return (
     <div className="flex h-screen bg-[#faf8f6] overflow-hidden">
@@ -19,6 +20,8 @@ export default function AdminLayoutClient({ adminName, pendingCount, children }:
         pendingCount={pendingCount}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed((v) => !v)}
       />
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <AdminTopbar

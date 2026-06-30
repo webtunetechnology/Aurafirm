@@ -19,6 +19,8 @@ import {
   Sparkles,
   BookOpen,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -42,9 +44,17 @@ interface AdminSidebarProps {
   pendingCount?: number
   isOpen: boolean
   onClose: () => void
+  collapsed: boolean
+  onToggleCollapse: () => void
 }
 
-export default function AdminSidebar({ pendingCount = 0, isOpen, onClose }: AdminSidebarProps) {
+export default function AdminSidebar({
+  pendingCount = 0,
+  isOpen,
+  onClose,
+  collapsed,
+  onToggleCollapse,
+}: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -55,49 +65,88 @@ export default function AdminSidebar({ pendingCount = 0, isOpen, onClose }: Admi
     router.refresh()
   }
 
-  const sidebarContent = (
-    <aside className="flex h-full w-56 flex-col bg-white border-r border-neutral-100">
-      {/* Logo + close button */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
-        <Link href="/admin" onClick={onClose}>
-          <Image
-            src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-            alt="AURAFIRM logo"
-            width={110}
-            height={38}
-            className="object-contain"
-          />
-        </Link>
-        {/* Close button — visible only on mobile */}
-        <button
-          onClick={onClose}
-          aria-label="Close sidebar"
-          className="lg:hidden flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
-        >
-          <X className="h-4 w-4" />
-        </button>
+  const sidebarContent = (isDesktop: boolean) => (
+    <aside
+      className={`flex h-full flex-col bg-white border-r border-neutral-100 transition-all duration-300 ${
+        isDesktop && collapsed ? "w-16" : "w-56"
+      }`}
+    >
+      {/* Logo / icon row */}
+      <div
+        className={`flex items-center border-b border-neutral-100 px-3 py-3 ${
+          isDesktop && collapsed ? "justify-center" : "justify-between"
+        }`}
+      >
+        {isDesktop && collapsed ? (
+          /* Collapsed: show small logo mark only */
+          <Link href="/admin" aria-label="AURAFIRM admin home">
+            <Image
+              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
+              alt="AURAFIRM"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+            />
+          </Link>
+        ) : (
+          <>
+            <Link href="/admin" onClick={!isDesktop ? onClose : undefined}>
+              <Image
+                src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
+                alt="AURAFIRM logo"
+                width={110}
+                height={38}
+                className="object-contain"
+              />
+            </Link>
+            {/* Close button — mobile only */}
+            {!isDesktop && (
+              <button
+                onClick={onClose}
+                aria-label="Close sidebar"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </>
+        )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-hidden">
+      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-hidden">
         {navItems.map(({ label, href, icon: Icon }) => {
           const active = pathname === href || (href !== "/admin" && pathname.startsWith(href))
           return (
             <Link
               key={href}
               href={href}
-              onClick={onClose}
-              className={`flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
+              onClick={!isDesktop ? onClose : undefined}
+              title={isDesktop && collapsed ? label : undefined}
+              className={`flex items-center rounded-xl px-2.5 py-1.5 text-sm font-medium transition-colors group relative ${
+                isDesktop && collapsed ? "justify-center" : "gap-3"
+              } ${
                 active
                   ? "bg-[#fdf0e8] text-[#c9744e]"
                   : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span>{label}</span>
-              {label === "Orders" && pendingCount > 0 && (
-                <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#c9744e] text-[10px] font-bold text-white">
-                  {pendingCount > 99 ? "99+" : pendingCount}
+              {!(isDesktop && collapsed) && (
+                <>
+                  <span>{label}</span>
+                  {label === "Orders" && pendingCount > 0 && (
+                    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#c9744e] text-[10px] font-bold text-white">
+                      {pendingCount > 99 ? "99+" : pendingCount}
+                    </span>
+                  )}
+                </>
+              )}
+              {/* Tooltip for collapsed desktop */}
+              {isDesktop && collapsed && (
+                <span className="pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-lg bg-neutral-800 px-2.5 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                  {label}
+                  {label === "Orders" && pendingCount > 0 && ` (${pendingCount})`}
                 </span>
               )}
             </Link>
@@ -105,38 +154,65 @@ export default function AdminSidebar({ pendingCount = 0, isOpen, onClose }: Admi
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="border-t border-neutral-100 px-3 py-3">
+      {/* Logout + desktop collapse toggle */}
+      <div className="border-t border-neutral-100 px-2 py-3 space-y-0.5">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-1.5 text-sm font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-800"
+          title={collapsed && isDesktop ? "Logout" : undefined}
+          className={`flex w-full items-center rounded-xl px-2.5 py-1.5 text-sm font-medium text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-800 group relative ${
+            isDesktop && collapsed ? "justify-center" : "gap-3"
+          }`}
         >
           <LogOut className="h-4 w-4" />
-          Logout
+          {!(isDesktop && collapsed) && <span>Logout</span>}
+          {isDesktop && collapsed && (
+            <span className="pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-lg bg-neutral-800 px-2.5 py-1 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              Logout
+            </span>
+          )}
         </button>
+
+        {/* Desktop collapse toggle */}
+        {isDesktop && (
+          <button
+            onClick={onToggleCollapse}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand" : "Collapse"}
+            className={`flex w-full items-center rounded-xl px-2.5 py-1.5 text-sm font-medium text-neutral-400 transition-colors hover:bg-neutral-50 hover:text-neutral-700 ${
+              collapsed ? "justify-center" : "gap-3"
+            }`}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <>
+                <ChevronLeft className="h-4 w-4" />
+                <span>Collapse</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </aside>
   )
 
   return (
     <>
-      {/* Desktop: always-visible sticky sidebar */}
+      {/* Desktop: collapsible sticky sidebar */}
       <div className="hidden lg:flex h-screen sticky top-0 shrink-0">
-        {sidebarContent}
+        {sidebarContent(true)}
       </div>
 
       {/* Mobile: overlay drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={onClose}
             aria-hidden="true"
           />
-          {/* Drawer */}
           <div className="absolute left-0 top-0 h-full shadow-2xl">
-            {sidebarContent}
+            {sidebarContent(false)}
           </div>
         </div>
       )}
