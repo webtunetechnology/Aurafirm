@@ -421,16 +421,15 @@ export default function CartPage() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
             {/* Brand column */}
             <div>
-              <div className="flex items-center gap-2">
+              <Link href="/">
                 <Image
                   src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
                   alt="AURAFIRM logo"
-                  width={120}
-                  height={40}
-                  className="h-10 w-auto object-contain"
+                  width={140}
+                  height={50}
+                  className="h-12 w-auto object-contain"
                 />
-                <span className="text-lg font-bold text-neutral-800">Aurafirm.</span>
-              </div>
+              </Link>
               <p className="mt-3 max-w-xs text-xs leading-relaxed text-neutral-500">
                 Where science meets self-care. We create high-quality, safe, and effective skincare and
                 wellness solutions built on purity, innovation, and care.

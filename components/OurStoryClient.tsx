@@ -24,7 +24,6 @@ import {
   Share2,
   Play,
   MessageCircle,
-  Sprout,
 } from "lucide-react"
 
 
@@ -277,12 +276,13 @@ export default function OurStoryClient({
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-6">
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#8a4a32] text-white">
-                  <Sprout className="h-5 w-5" />
-                </div>
-                <span className="font-sans text-2xl font-bold text-neutral-800">Aurafirm.</span>
-              </div>
+              <Link href="/">
+                <img
+                  src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
+                  alt="AURAFIRM logo"
+                  className="h-12 w-auto object-contain"
+                />
+              </Link>
               <p className="mt-5 max-w-xs text-sm leading-relaxed text-neutral-500">
                 Where science meets self-care. High-quality, safe, and effective skincare built on purity, innovation, and care.
               </p>
