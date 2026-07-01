@@ -360,32 +360,56 @@ export async function adminDeleteProduct(id: string) {
 export async function adminGetDashboardStats() {
   const supabase = createAdminClient()
 
-  const [ordersRes, customersRes, productsRes] = await Promise.all([
-    supabase.from('orders').select('id, order_number, customer_name, grand_total, status, created_at'),
-    supabase.from('profiles').select('id', { count: 'exact' }).eq('is_admin', false),
-    supabase.from('products').select('id, name, stock', { count: 'exact' }),
+  const now = new Date()
+  const startCurrent = new Date(now); startCurrent.setDate(startCurrent.getDate() - 6); startCurrent.setHours(0, 0, 0, 0)
+  const startPrev    = new Date(now); startPrev.setDate(startPrev.getDate() - 13);     startPrev.setHours(0, 0, 0, 0)
+  const endPrev      = new Date(startCurrent)
+
+  const [allOrdersRes, prevOrdersRes, customersRes, prevCustomersRes, productsRes] = await Promise.all([
+    supabase.from('orders').select('id, order_number, customer_name, grand_total, status, created_at').gte('created_at', startCurrent.toISOString()),
+    supabase.from('orders').select('grand_total, status, created_at').gte('created_at', startPrev.toISOString()).lt('created_at', endPrev.toISOString()),
+    supabase.from('profiles').select('id', { count: 'exact' }).eq('is_admin', false).gte('created_at', startCurrent.toISOString()),
+    supabase.from('profiles').select('id', { count: 'exact' }).eq('is_admin', false).gte('created_at', startPrev.toISOString()).lt('created_at', endPrev.toISOString()),
+    supabase.from('products').select('id, name, stock'),
   ])
 
-  const orders = ordersRes.data ?? []
-  const totalRevenue = orders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
-  const totalOrders = orders.length
-  const completedOrders = orders.filter((o) => o.status === 'delivered').length
-  const pendingOrders = orders.filter((o) => o.status === 'pending').length
-  const totalCustomers = customersRes.count ?? 0
+  // All-time totals for total counters
+  const [allTimeOrdersRes, allTimeCustomersRes] = await Promise.all([
+    supabase.from('orders').select('id, order_number, customer_name, grand_total, status, created_at'),
+    supabase.from('profiles').select('id', { count: 'exact' }).eq('is_admin', false),
+  ])
+
+  const currentOrders  = allOrdersRes.data ?? []
+  const prevOrders     = prevOrdersRes.data ?? []
+  const allOrders      = allTimeOrdersRes.data ?? []
+
+  const currentRevenue = currentOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+  const prevRevenue    = prevOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+
+  const pctChange = (current: number, prev: number) => {
+    if (prev === 0) return current > 0 ? '+100%' : '0%'
+    const diff = ((current - prev) / prev) * 100
+    return `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`
+  }
+
+  const totalRevenue    = allOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0)
+  const totalOrders     = allOrders.length
+  const totalCustomers  = allTimeCustomersRes.count ?? 0
+  const completedOrders = allOrders.filter((o) => o.status === 'delivered').length
+  const pendingOrders   = allOrders.filter((o) => o.status === 'pending').length
   const lowStockProducts = (productsRes.data ?? []).filter((p) => p.stock < 20).length
 
+  const currentAvg = currentOrders.length > 0 ? currentRevenue / currentOrders.length : 0
+  const prevAvg    = prevOrders.length > 0 ? prevRevenue / prevOrders.length : 0
+
   // Build last 7 days sales chart data
-  const now = new Date()
   const chartData: { date: string; sales: number }[] = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date(now)
     d.setDate(d.getDate() - i)
     const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-    const dayOrders = orders.filter((o) => {
-      const od = new Date(o.created_at)
-      return od.toDateString() === d.toDateString()
-    })
-    chartData.push({ date: dateStr, sales: dayOrders.reduce((s, o) => s + o.grand_total, 0) })
+    const dayOrders = allOrders.filter((o) => new Date(o.created_at).toDateString() === d.toDateString())
+    chartData.push({ date: dateStr, sales: dayOrders.reduce((s, o) => s + (o.grand_total ?? 0), 0) })
   }
 
   return {
@@ -398,7 +422,16 @@ export async function adminGetDashboardStats() {
     pendingOrders,
     lowStockProducts,
     chartData,
-    recentOrders: (ordersRes.data ?? []).slice(0, 5),
+    recentOrders: allOrders
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 5),
+    changes: {
+      orders:   pctChange(currentOrders.length, prevOrders.length),
+      revenue:  pctChange(currentRevenue, prevRevenue),
+      customers: pctChange(customersRes.count ?? 0, prevCustomersRes.count ?? 0),
+      profit:   pctChange(Math.round(currentRevenue * 0.42), Math.round(prevRevenue * 0.42)),
+      avg:      pctChange(currentAvg, prevAvg),
+    },
   }
 }
 
@@ -782,17 +815,37 @@ export async function adminGetAnalyticsData() {
 
 export async function adminGetTopProducts() {
   const supabase = createAdminClient()
-  const { data: items, error } = await supabase
-    .from('order_items')
-    .select('product_id, product_name, product_image, total, quantity')
+
+  const [{ data: items, error }, { data: products }] = await Promise.all([
+    supabase.from('order_items').select('product_id, product_name, product_image, total, quantity'),
+    supabase.from('products').select('id, name, image_url'),
+  ])
   if (error) return []
+
+  // Build a lookup from product id and name → image_url for missing images
+  const imageById: Record<string, string>   = {}
+  const imageByName: Record<string, string> = {}
+  for (const p of products ?? []) {
+    if (p.image_url) {
+      imageById[p.id]       = p.image_url
+      imageByName[p.name?.toLowerCase()] = p.image_url
+    }
+  }
 
   const map: Record<string, { id: string; name: string; image: string | null; revenue: number; units: number }> = {}
   for (const item of items ?? []) {
     const key = item.product_id ?? item.product_name
-    if (!map[key]) map[key] = { id: key, name: item.product_name, image: item.product_image, revenue: 0, units: 0 }
+    if (!map[key]) {
+      // Resolve image: prefer snapshot on order_item, fall back to live product
+      const image =
+        item.product_image ||
+        (item.product_id ? imageById[item.product_id] : null) ||
+        imageByName[item.product_name?.toLowerCase()] ||
+        null
+      map[key] = { id: key, name: item.product_name, image, revenue: 0, units: 0 }
+    }
     map[key].revenue += item.total ?? 0
-    map[key].units += item.quantity ?? 0
+    map[key].units   += item.quantity ?? 0
   }
   return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 5)
 }

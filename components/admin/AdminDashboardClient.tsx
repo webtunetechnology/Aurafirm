@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ShoppingBag,
@@ -9,6 +10,7 @@ import {
   TrendingUp,
   ClipboardList,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react"
 import {
   LineChart,
@@ -33,6 +35,12 @@ const STATUS_COLORS: Record<string, string> = {
   refunded:   "bg-neutral-100 text-neutral-600",
 }
 
+function changeColor(v: string) {
+  if (v.startsWith("+")) return "text-[#6b8f5e]"
+  if (v.startsWith("-")) return "text-red-500"
+  return "text-neutral-400"
+}
+
 function StatCard({
   title,
   value,
@@ -54,7 +62,7 @@ function StatCard({
           {prefix}{typeof value === "number" ? value.toLocaleString("en-IN") : value}
         </p>
         {change && (
-          <p className="mt-1 text-xs font-medium text-[#6b8f5e]">
+          <p className={`mt-1 text-xs font-medium ${changeColor(change)}`}>
             {change} vs last 7 days
           </p>
         )}
@@ -66,41 +74,77 @@ function StatCard({
   )
 }
 
+const REFRESH_INTERVAL = 30_000 // 30 seconds
+
 export default function AdminDashboardClient({
-  stats,
-  topProducts,
+  stats: initialStats,
+  topProducts: initialTopProducts,
 }: {
   stats: Stats
   topProducts: TopProduct[]
 }) {
-  const [dateLabel] = useState(() => {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [lastRefreshed, setLastRefreshed] = useState(new Date())
+
+  const dateLabel = (() => {
     const now = new Date()
     const start = new Date(now)
     start.setDate(start.getDate() - 6)
     const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" })
-    return `${fmt(start)} - ${fmt(now)}, ${now.getFullYear()}`
-  })
+    return `${fmt(start)} – ${fmt(now)}, ${now.getFullYear()}`
+  })()
+
+  const handleRefresh = () => {
+    startTransition(() => {
+      router.refresh()
+      setLastRefreshed(new Date())
+    })
+  }
+
+  // Auto-refresh every 30 s
+  useEffect(() => {
+    const id = setInterval(handleRefresh, REFRESH_INTERVAL)
+    return () => clearInterval(id)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const stats = initialStats
+  const topProducts = initialTopProducts
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-extrabold text-neutral-900">Welcome back, Admin!</h1>
-          <p className="mt-0.5 text-sm text-neutral-500">Here&apos;s what&apos;s happening with your store today.</p>
+          <p className="mt-0.5 text-sm text-neutral-500">
+            Here&apos;s what&apos;s happening with your store today.
+          </p>
         </div>
-        <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-xs text-neutral-600 shadow-sm">
-          <span>{dateLabel}</span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-xs text-neutral-600 shadow-sm">
+            {dateLabel}
+          </span>
+          <button
+            onClick={handleRefresh}
+            disabled={isPending}
+            title="Refresh dashboard"
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 shadow-sm transition-colors hover:bg-neutral-50 disabled:opacity-60"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isPending ? "animate-spin" : ""}`} />
+            {isPending ? "Refreshing…" : `Last: ${lastRefreshed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`}
+          </button>
         </div>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-5">
-        <StatCard title="Total Orders"     value={stats.totalOrders}   change="18.6%" icon={ShoppingBag}  />
-        <StatCard title="Total Sales"      value={stats.totalRevenue}  change="23.4%" icon={IndianRupee} prefix="₹" />
-        <StatCard title="Total Customers"  value={stats.totalCustomers} change="12.7%" icon={Users}       />
-        <StatCard title="Gross Profit"     value={stats.grossProfit}   change="18.2%" icon={TrendingUp}  prefix="₹" />
-        <StatCard title="Avg. Order Value" value={stats.avgOrderValue} change="6.3%"  icon={ClipboardList} prefix="₹" />
+        <StatCard title="Total Orders"     value={stats.totalOrders}    change={stats.changes.orders}    icon={ShoppingBag}   />
+        <StatCard title="Total Sales"      value={stats.totalRevenue}   change={stats.changes.revenue}   icon={IndianRupee}   prefix="₹" />
+        <StatCard title="Total Customers"  value={stats.totalCustomers} change={stats.changes.customers} icon={Users}         />
+        <StatCard title="Gross Profit"     value={stats.grossProfit}    change={stats.changes.profit}    icon={TrendingUp}    prefix="₹" />
+        <StatCard title="Avg. Order Value" value={stats.avgOrderValue}  change={stats.changes.avg}       icon={ClipboardList} prefix="₹" />
       </div>
 
       {/* Chart + top products + recent orders */}
@@ -113,12 +157,14 @@ export default function AdminDashboardClient({
               <h2 className="font-bold text-neutral-900">Sales Overview</h2>
               <p className="mt-0.5 text-xl font-extrabold text-neutral-900">
                 ₹{stats.totalRevenue.toLocaleString("en-IN")}
-                <span className="ml-2 text-xs font-medium text-[#6b8f5e]">+23.4% vs Last 7 days</span>
+                <span className={`ml-2 text-xs font-medium ${changeColor(stats.changes.revenue)}`}>
+                  {stats.changes.revenue} vs last 7 days
+                </span>
               </p>
             </div>
-            <select className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600">
-              <option>This Week</option>
-            </select>
+            <span className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-600">
+              This Week
+            </span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={stats.chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
@@ -146,7 +192,7 @@ export default function AdminDashboardClient({
           </ResponsiveContainer>
         </div>
 
-        {/* Top Selling Products — live from order_items */}
+        {/* Top Selling Products */}
         <div className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-bold text-neutral-900">Top Selling Products</h2>

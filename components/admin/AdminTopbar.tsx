@@ -1,6 +1,6 @@
 "use client"
 
-import { Bell, Search, MessageSquare, ChevronDown, User, X, LogOut, Settings } from "lucide-react"
+import { Bell, Search, MessageSquare, ChevronDown, User, X, LogOut, Settings, Menu } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -20,7 +20,7 @@ const searchablePages = [
   { label: "Settings",   href: "/admin/settings" },
 ]
 
-export default function AdminTopbar({ adminName }: { adminName: string }) {
+export default function AdminTopbar({ adminName, onMenuToggle }: { adminName: string; onMenuToggle?: () => void }) {
   const router = useRouter()
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -67,15 +67,26 @@ export default function AdminTopbar({ adminName }: { adminName: string }) {
 
   return (
     <>
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/20 bg-[#7d3c1f] px-6">
-        {/* Logo — links to dashboard */}
-        <Link href="/admin" aria-label="AURAFIRM admin home">
-          <img
-            src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-            alt="AURAFIRM logo"
-            className="h-8 w-auto object-contain brightness-0 invert"
-          />
-        </Link>
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/20 bg-[#7d3c1f] px-4 lg:px-6">
+        <div className="flex items-center gap-3">
+          {/* Hamburger — visible only on mobile */}
+          <button
+            aria-label="Toggle sidebar"
+            onClick={onMenuToggle}
+            className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+
+          {/* Logo — links to dashboard */}
+          <Link href="/admin" aria-label="AURAFIRM admin home">
+            <img
+              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
+              alt="AURAFIRM logo"
+              className="h-8 w-auto object-contain brightness-0 invert"
+            />
+          </Link>
+        </div>
 
         {/* Right side actions */}
         <div className="flex items-center gap-4">
