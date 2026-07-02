@@ -491,11 +491,15 @@ export default function ProductPageClient({
                 Where science meets self-care. We create high-quality, safe, and effective skincare and wellness solutions built on purity, innovation, and care.
               </p>
               <div className="mt-6 flex items-center gap-4">
-                {[Camera, AtSign, Share2, Play, MessageCircle].map((Icon, i) => (
-                  <a key={i} href="#" aria-label="Social link" className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B4513] text-white transition-opacity hover:opacity-80">
-                    <Icon className="h-4 w-4" />
-                  </a>
-                ))}
+                <a
+                  href="https://www.instagram.com/aurafirm_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B4513] text-white transition-opacity hover:opacity-80"
+                >
+                  <Camera className="h-4 w-4" />
+                </a>
               </div>
             </div>
             {[
@@ -515,9 +519,9 @@ export default function ProductPageClient({
             <div>
               <h3 className="text-base font-bold text-gray-900">Contact Info</h3>
               <ul className="mt-5 flex flex-col gap-4 text-sm text-gray-500">
-                <li><a href="tel:+01234567890" className="transition-colors hover:text-[#8B4513]">+0123-456-789</a></li>
-                <li><a href="mailto:care@aurafirm.com" className="transition-colors hover:text-[#8B4513]">care@aurafirm.com</a></li>
-                <li className="leading-relaxed">8502 Preston Rd.<br />Inglewood, Maine<br />98380</li>
+                <li><a href="tel:+918750089105" className="transition-colors hover:text-[#8B4513]">+91 87500 89105</a></li>
+                <li><a href="mailto:aurafirm0@gmail.com" className="transition-colors hover:text-[#8B4513]">aurafirm0@gmail.com</a></li>
+                <li className="leading-relaxed">Plot No.2, Khasra No.51/1,<br />Jai Vihar, Najafgarh,<br />New Delhi – 110043</li>
               </ul>
             </div>
           </div>

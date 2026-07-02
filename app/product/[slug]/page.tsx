@@ -5,13 +5,35 @@ import ProductPageClient from "@/components/ProductPageClient"
 
 export const dynamic = "force-dynamic"
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<import("next").Metadata> {
   const { slug } = await params
   const product = await getProductBySlug(slug)
-  if (!product) return { title: "Product not found" }
+  if (!product) return { title: "Product Not Found" }
+
+  const title = product.name
+  const description = product.subtitle
+    ? `${product.subtitle}. ${product.description?.slice(0, 120)}…`
+    : product.description?.slice(0, 155) ?? ""
+  const image = product.image_url || "/og-image.jpg"
+  const url = `/product/${slug}`
+
   return {
-    title: `${product.name} | AuraFirm`,
-    description: product.description,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${product.name} | AURAFIRM`,
+      description,
+      url,
+      type: "website",
+      images: [{ url: image, width: 1200, height: 630, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | AURAFIRM`,
+      description,
+      images: [image],
+    },
   }
 }
 

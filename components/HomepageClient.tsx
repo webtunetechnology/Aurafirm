@@ -7,9 +7,6 @@ import Link from "next/link"
 import {
   Heart,
   Camera,
-  Play,
-  Share2,
-  AtSign,
   ChevronLeft,
   ChevronRight,
   Star,
@@ -182,7 +179,9 @@ const footerColumns = [
   },
 ]
 
-const socialIcons = [Camera, AtSign, Share2, Play, MessageCircle]
+const socials = [
+  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: Camera },
+]
 
 interface DBProduct {
   id: string
@@ -656,11 +655,13 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
                 solutions built on purity, innovation, and care.
               </p>
               <div className="mt-6 flex items-center gap-3">
-                {socialIcons.map((Icon, i) => (
+                {socials.map(({ href, label, Icon }) => (
                   <a
-                    key={i}
-                    href="#"
-                    aria-label="Social media link"
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-[#8a4a32] text-white transition-colors hover:bg-[#6f3a26]"
                   >
                     <Icon className="h-4 w-4" />
@@ -689,14 +690,12 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
             <div>
               <h4 className="font-sans text-sm font-bold text-neutral-800">Contact Info</h4>
               <ul className="mt-4 flex flex-col gap-3 text-sm text-neutral-500">
-                <li>+0123-456-789</li>
-                <li>care@aurafirm.com</li>
-                <li>
-                  8502 Preston Rd.
-                  <br />
-                  Inglewood, Maine
-                  <br />
-                  98380
+                <li><a href="tel:+918750089105" className="transition-colors hover:text-neutral-800">+91 87500 89105</a></li>
+                <li><a href="mailto:aurafirm0@gmail.com" className="transition-colors hover:text-neutral-800">aurafirm0@gmail.com</a></li>
+                <li className="leading-relaxed">
+                  Plot No.2, Khasra No.51/1,<br />
+                  Jai Vihar, Najafgarh,<br />
+                  New Delhi – 110043
                 </li>
               </ul>
             </div>
