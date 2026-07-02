@@ -480,15 +480,15 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
         </div>
       </section>
 
-      {/* Full-width 16:9 Campaign Banner */}
-      <section className="mx-auto max-w-7xl px-6 py-8">
+      {/* Campaign Banner */}
+      <section className="mx-auto max-w-4xl px-6 py-6">
         <div className="relative w-full overflow-hidden rounded-2xl" style={{ aspectRatio: "16 / 9" }}>
           <Image
             src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1783020971/ChatGPT_Image_Jul_2_2026_11_37_47_PM_1_zobiwh.png"
             alt="AURAFIRM Campaign Banner"
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 1280px"
+            sizes="(max-width: 768px) 100vw, 896px"
             priority
           />
         </div>
