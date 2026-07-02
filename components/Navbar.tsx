@@ -36,7 +36,7 @@ export default function Navbar() {
         <div className="flex flex-1 items-center justify-center gap-3">
           <span className="text-white/80">Also available on</span>
           <a
-            href="https://www.amazon.in"
+            href="https://www.amazon.in/AuraFirm-Youghful-Collagen-Hyaluronic-Niacinamide/dp/B0H5KNMRFF"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-7 items-center rounded bg-white px-2.5 transition-opacity hover:opacity-90"
@@ -49,7 +49,7 @@ export default function Navbar() {
           </a>
           <span className="text-white/40">&amp;</span>
           <a
-            href="https://www.flipkart.com"
+            href="https://www.flipkart.com/aurafirm-fusion-4x1/p/itmca2a6d1bf87f6?pid=KMTHZGXWSZHRGHG5&lid=LSTKMTHZGXWSZHRGHG5LZLZPT&marketplace=FLIPKART&cmpid=content_skin-treatment_8965229628_gmc"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-7 items-center rounded bg-white px-2.5 transition-opacity hover:opacity-90"
