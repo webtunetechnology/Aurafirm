@@ -72,15 +72,14 @@ export default function MyOrdersPage() {
       {/* Header */}
       <header className="border-b border-[#ead5c8] bg-white px-6 py-4 md:px-10">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/">
             <Image
-              src="https://res.cloudinary.com/df01whs60/image/upload/v1782241556/front-profile_page-0001-removebg-preview_syyqyk.png"
-              alt="Aurafirm"
-              width={32}
-              height={32}
-              className="object-contain"
+              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
+              alt="AURAFIRM logo"
+              width={130}
+              height={44}
+              className="h-10 w-auto object-contain"
             />
-            <span className="font-bold text-neutral-800">Aurafirm.</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/cart" className="text-sm text-neutral-600 hover:text-[#c9744e]">

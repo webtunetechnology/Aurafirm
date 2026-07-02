@@ -503,15 +503,15 @@ export default function ProductPageClient({
               </div>
             </div>
             {[
-              { heading: "Company",          links: ["About Us","Blogs","Contact Us","Career"] },
-              { heading: "Customer Services",links: ["My Account","Track Your Order","Return","FAQ"] },
-              { heading: "Our Information",  links: ["Privacy","User Terms & Condition","Return Policy"] },
+              { heading: "Company",          links: [{ label: "About Us", href: "/about" }, { label: "Contact Us", href: "/contact" }] },
+              { heading: "Customer Services",links: [{ label: "My Account", href: "/account/orders" }, { label: "Track Your Order", href: "/account/orders" }, { label: "Return", href: "/contact" }, { label: "FAQ", href: "/contact" }] },
+              { heading: "Our Information",  links: [{ label: "Privacy", href: "/privacy" }, { label: "User Terms & Condition", href: "/terms" }, { label: "Return Policy", href: "/return-policy" }] },
             ].map((col) => (
               <div key={col.heading}>
                 <h3 className="text-base font-bold text-gray-900">{col.heading}</h3>
                 <ul className="mt-5 flex flex-col gap-4">
                   {col.links.map((link) => (
-                    <li key={link}><a href="#" className="text-sm text-gray-500 transition-colors hover:text-[#8B4513]">{link}</a></li>
+                    <li key={link.label}><a href={link.href} className="text-sm text-gray-500 transition-colors hover:text-[#8B4513]">{link.label}</a></li>
                   ))}
                 </ul>
               </div>
@@ -528,7 +528,7 @@ export default function ProductPageClient({
           <div className="mt-10 border-t border-gray-200 pt-6">
             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
               <p className="text-sm text-gray-500">
-                Copyright &copy; 2025 <span className="font-medium text-[#8B4513]">Aurafirm.</span> All Rights Reserved.
+                Copyright &copy; {new Date().getFullYear()} <span className="font-medium text-[#8B4513]">AURAFIRM.</span> All Rights Reserved.
               </p>
               <div className="flex items-center gap-6 text-sm text-gray-700">
                 <button type="button" className="inline-flex items-center gap-1.5">English <ChevronDown className="h-4 w-4" /></button>

@@ -83,10 +83,11 @@ export default function AdminSidebar({
           <Image
             src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
             alt="AURAFIRM logo"
-            width={isDesktop && collapsed ? 32 : 110}
-            height={isDesktop && collapsed ? 32 : 38}
+            width={110}
+            height={38}
+            priority
             className={`object-contain transition-all duration-300 ${
-              isDesktop && collapsed ? "h-8 w-8" : ""
+              isDesktop && collapsed ? "w-8 h-auto" : "w-[110px] h-auto"
             }`}
           />
         </Link>
@@ -119,7 +120,7 @@ export default function AdminSidebar({
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-hidden">
+      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
         {navItems.map(({ label, href, icon: Icon }) => {
           const active = pathname === href || (href !== "/admin" && pathname.startsWith(href))
           return (

@@ -8,9 +8,6 @@ import {
   Heart,
   Search,
   Camera,
-  AtSign,
-  Share2,
-  Play,
   Menu,
   X,
 } from "lucide-react"
@@ -36,7 +33,7 @@ export default function Navbar() {
         <div className="flex flex-1 items-center justify-center gap-3">
           <span className="text-white/80">Also available on</span>
           <a
-            href="https://www.amazon.in"
+            href="https://www.amazon.in/AuraFirm-Youghful-Collagen-Hyaluronic-Niacinamide/dp/B0H5KNMRFF"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-7 items-center rounded bg-white px-2.5 transition-opacity hover:opacity-90"
@@ -49,7 +46,7 @@ export default function Navbar() {
           </a>
           <span className="text-white/40">&amp;</span>
           <a
-            href="https://www.flipkart.com"
+            href="https://www.flipkart.com/aurafirm-fusion-4x1/p/itmca2a6d1bf87f6?pid=KMTHZGXWSZHRGHG5&lid=LSTKMTHZGXWSZHRGHG5LZLZPT&marketplace=FLIPKART&cmpid=content_skin-treatment_8965229628_gmc"
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-7 items-center rounded bg-white px-2.5 transition-opacity hover:opacity-90"
@@ -61,12 +58,15 @@ export default function Navbar() {
             />
           </a>
         </div>
-        <div className="hidden items-center gap-3 sm:flex">
+        <a
+          href="https://www.instagram.com/aurafirm_"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="hidden items-center sm:flex text-white/80 hover:text-white transition-colors"
+        >
           <Camera className="h-3.5 w-3.5" />
-          <AtSign className="h-3.5 w-3.5" />
-          <Share2 className="h-3.5 w-3.5" />
-          <Play className="h-3.5 w-3.5" />
-        </div>
+        </a>
       </div>
 
       {/* Main navbar */}

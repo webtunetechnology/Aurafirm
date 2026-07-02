@@ -165,7 +165,7 @@ export default function AdminLoginPage() {
         ))}
       </div>
       <div className="bg-[#fdf6f2] py-3 text-center text-xs text-neutral-500">
-        &copy; 2025 Aurafirm. All Rights Reserved.
+        &copy; {new Date().getFullYear()} AURAFIRM. All Rights Reserved.
       </div>
     </div>
   )

@@ -155,9 +155,7 @@ const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us",    href: "/about" },
-      { label: "Blogs",       href: "/blogs" },
       { label: "Contact Us",  href: "/contact" },
-      { label: "Career",      href: "/career" },
     ],
   },
   {
@@ -482,6 +480,20 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
         </div>
       </section>
 
+      {/* Campaign Banner */}
+      <section className="mx-auto max-w-4xl px-6 py-6">
+        <div className="relative w-full overflow-hidden rounded-2xl" style={{ aspectRatio: "16 / 9" }}>
+          <Image
+            src="https://res.cloudinary.com/dgydmwvvm/image/upload/v1783020971/ChatGPT_Image_Jul_2_2026_11_37_47_PM_1_zobiwh.png"
+            alt="AURAFIRM Campaign Banner"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 896px"
+            priority
+          />
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="relative mx-auto max-w-5xl px-6 py-20 text-center">
         <p className="text-sm font-semibold text-neutral-700">Testimonials</p>
@@ -704,7 +716,7 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
           {/* Bottom bar */}
           <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-neutral-200 pt-6 sm:flex-row">
             <p className="text-sm text-neutral-500">
-              Copyright {"\u00A9"} 2025 <span className="text-[#c79a4b]">Aurafirm.</span> All Rights Reserved.
+              Copyright {"\u00A9"} {new Date().getFullYear()} <span className="text-[#c79a4b]">AURAFIRM.</span> All Rights Reserved.
             </p>
             <div className="flex items-center gap-3 text-sm text-neutral-600">
               <button className="flex items-center gap-1 hover:text-neutral-800">

@@ -30,9 +30,9 @@ function SectionCard({
 
 export default function AdminSettingsPage() {
   const [store, setStore] = useState({
-    name: "Aurafirm",
+    name: "AURAFIRM",
     email: "support@aurafirm.com",
-    phone: "+91 98765 43210",
+    phone: "+91",
     address: "Mumbai, Maharashtra, India",
     currency: "INR",
     tax_rate: "18",

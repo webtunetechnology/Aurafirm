@@ -46,15 +46,14 @@ export default function CustomerLoginPage() {
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: "#fdf6f2" }}>
       {/* Header */}
       <header className="flex items-center justify-between px-10 py-5">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/">
           <Image
-            src="https://res.cloudinary.com/df01whs60/image/upload/v1782241556/front-profile_page-0001-removebg-preview_syyqyk.png"
-            alt="Aurafirm"
-            width={36}
-            height={36}
-            className="object-contain"
+            src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
+            alt="AURAFIRM logo"
+            width={130}
+            height={44}
+            className="h-10 w-auto object-contain"
           />
-          <span className="text-lg font-bold text-neutral-800">Aurafirm.</span>
         </Link>
         <Link href="/" className="text-sm text-[#c9744e] hover:underline">
           Continue Shopping
@@ -157,7 +156,7 @@ export default function CustomerLoginPage() {
           ))}
         </div>
         <div className="bg-[#fdf6f2] py-3 text-center text-xs text-neutral-500">
-          &copy; 2025 Aurafirm. All Rights Reserved.
+          &copy; {new Date().getFullYear()} AURAFIRM. All Rights Reserved.
         </div>
       </footer>
     </div>

@@ -28,9 +28,7 @@ const footerColumns = [
     title: "Company",
     links: [
       { label: "About Us",   href: "/about" },
-      { label: "Blogs",      href: "/blogs" },
       { label: "Contact Us", href: "/contact" },
-      { label: "Career",     href: "/career" },
     ],
   },
   {
@@ -150,7 +148,7 @@ export default function OurStoryClient({
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <Sprout className="h-16 w-16 text-[#c9744e]/40" />
+                  <FlaskConical className="h-16 w-16 text-[#c9744e]/40" />
                 </div>
               )}
             </div>
@@ -324,7 +322,7 @@ export default function OurStoryClient({
           </div>
           <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-neutral-200 pt-6 sm:flex-row">
             <p className="text-sm text-neutral-500">
-              Copyright {"\u00A9"} 2025 <span className="text-[#c79a4b]">Aurafirm.</span> All Rights Reserved.
+              Copyright {"\u00A9"} {new Date().getFullYear()} <span className="text-[#c79a4b]">AURAFIRM.</span> All Rights Reserved.
             </p>
             <div className="flex items-center gap-3 text-sm text-neutral-600">
               <button className="flex items-center gap-1 hover:text-neutral-800">

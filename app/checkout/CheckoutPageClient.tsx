@@ -32,7 +32,7 @@ const INDIAN_STATES = [
 ]
 
 const footerColumns = [
-  { title: "Company", links: ["About Us", "Blogs", "Contact Us", "Careers"] },
+  { title: "Company", links: ["About Us", "Contact Us"] },
   { title: "Customer Services", links: ["My Account", "Track Your Order", "Returns", "FAQ"] },
   { title: "Our Information", links: ["Privacy", "User Terms & Condition", "Return Policy"] },
   {
@@ -900,8 +900,8 @@ function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-[#f0d8c8] pt-6 sm:flex-row">
           <p className="text-[11px] text-neutral-500">
-            Copyright &copy; 2025{" "}
-            <a href="#" className="text-[#c9744e]">Aurafirm</a>. All Rights Reserved.
+            Copyright &copy; {new Date().getFullYear()}{" "}
+            <a href="/" className="text-[#c9744e]">AURAFIRM</a>. All Rights Reserved.
           </p>
           <div className="flex gap-4">
             <select className="rounded border border-[#e3c8bb] bg-white px-2 py-1 text-xs text-neutral-600 outline-none">

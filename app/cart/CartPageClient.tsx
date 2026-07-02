@@ -8,9 +8,6 @@ import {
   ShoppingCart,
   Heart,
   Camera,
-  AtSign,
-  Share2,
-  Play,
   Minus,
   Plus,
   Trash2,
@@ -20,40 +17,25 @@ import {
   Leaf,
   ChevronRight,
   ArrowLeft,
-  MessageCircle,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 
 const suggestedProducts = [
   {
-    id: "vitamin-c-face-wash",
-    name: "Vitamin C Face Wash",
-    subtitle: "Brightening Cleanser",
-    price: 749,
-    image:
-      "https://res.cloudinary.com/df01whs60/image/upload/v1782241556/front-profile_page-0001-removebg-preview_syyqyk.png",
-  },
-  {
-    id: "niacinamide-serum",
-    name: "Niacinamide Serum",
-    subtitle: "Pore Refining Formula",
-    price: 999,
-    image:
-      "https://res.cloudinary.com/df01whs60/image/upload/v1782241556/front-profile_page-0001-removebg-preview_syyqyk.png",
-  },
-  {
-    id: "hydra-glow-moisturizer",
-    name: "Hydra Glow Moisturizer",
-    subtitle: "24H Deep Hydration",
-    price: 699,
+    id: "fusion-4x1-face-serum",
+    name: "AuraFirm Fusion 4x1 Face Serum",
+    subtitle: "Hyaluronic Acid, Niacinamide, Peptides & Collagen",
+    price: 1199,
+    href: "/product/fusion-4x1-face-serum",
     image:
       "https://res.cloudinary.com/df01whs60/image/upload/v1782241602/ChatGPT_Image_Jun_19__2026__10_00_30_PM-removebg-preview_hsizp4.png",
   },
   {
-    id: "daily-sunscreen-spf50",
-    name: "Daily Sunscreen SPF 50",
-    subtitle: "Broad Spectrum Protection",
-    price: 699,
+    id: "gluta-tab-effervescent-tablets",
+    name: "AuraFirm Gluta Tab",
+    subtitle: "L-Glutathione Effervescent Tablets",
+    price: 599,
+    href: "/product/gluta-tab-effervescent-tablets",
     image:
       "https://res.cloudinary.com/df01whs60/image/upload/v1782241602/ChatGPT_Image_Jun_19__2026__10_00_30_PM-removebg-preview_hsizp4.png",
   },
@@ -67,7 +49,7 @@ const trustBadges = [
 ]
 
 const footerColumns = [
-  { title: "Company", links: ["About Us", "Blogs", "Contact Us", "Careers"] },
+  { title: "Company", links: ["About Us", "Contact Us"] },
   { title: "Customer Services", links: ["My Account", "Track Your Order", "Returns", "FAQ"] },
   { title: "Our Information", links: ["Privacy", "User Terms & Condition", "Return Policy"] },
   {
@@ -435,16 +417,15 @@ export default function CartPage() {
                 wellness solutions built on purity, innovation, and care.
               </p>
               <div className="mt-4 flex items-center gap-3">
-                {[Camera, AtSign, Share2, Play, MessageCircle].map((Icon, i) => (
-                  <a
-                    key={i}
-                    href="#"
-                    aria-label={`Social link ${i + 1}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e3c8bb] text-neutral-600 transition-colors hover:border-[#c9744e] hover:text-[#c9744e]"
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </a>
-                ))}
+                <a
+                  href="https://www.instagram.com/aurafirm_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e3c8bb] text-neutral-600 transition-colors hover:border-[#c9744e] hover:text-[#c9744e]"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                </a>
               </div>
             </div>
 
