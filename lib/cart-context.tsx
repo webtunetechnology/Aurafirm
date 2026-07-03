@@ -26,9 +26,16 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+function persist(items: CartItem[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+  } catch {
+    // storage may be unavailable (private mode) — fail silently
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
-  const [hydrated, setHydrated] = useState(false)
 
   // Load persisted cart on mount (client only)
   useEffect(() => {
@@ -38,39 +45,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore malformed storage
     }
-    setHydrated(true)
   }, [])
 
-  // Persist cart whenever it changes (after initial hydration)
-  useEffect(() => {
-    if (!hydrated) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-    } catch {
-      // storage may be unavailable (private mode) — fail silently
-    }
-  }, [items, hydrated])
-
+  // Every mutator computes the next state, writes it to localStorage, and returns it.
+  // Persisting inside the updater (instead of a separate effect) avoids StrictMode /
+  // hydration timing races that could drop writes.
   const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.id === newItem.id)
-      if (existing) {
-        return prev.map((i) => (i.id === newItem.id ? { ...i, quantity: i.quantity + 1 } : i))
-      }
-      return [...prev, { ...newItem, quantity: 1 }]
+      const next = existing
+        ? prev.map((i) => (i.id === newItem.id ? { ...i, quantity: i.quantity + 1 } : i))
+        : [...prev, { ...newItem, quantity: 1 }]
+      persist(next)
+      return next
     })
   }, [])
 
   const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id))
+    setItems((prev) => {
+      const next = prev.filter((i) => i.id !== id)
+      persist(next)
+      return next
+    })
   }, [])
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
     if (quantity < 1) return
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity } : i)))
+    setItems((prev) => {
+      const next = prev.map((i) => (i.id === id ? { ...i, quantity } : i))
+      persist(next)
+      return next
+    })
   }, [])
 
-  const clearCart = useCallback(() => setItems([]), [])
+  const clearCart = useCallback(() => {
+    persist([])
+    setItems([])
+  }, [])
 
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0)
