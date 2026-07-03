@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Navbar from "@/components/Navbar"
 import {
   Mail, Phone, MapPin, Clock, Send, CheckCircle, MessageSquare,
 } from "lucide-react"
@@ -55,9 +54,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-[#faf5f3] font-sans">
-      <Navbar />
-
-
       {/* Hero */}
       <div className="bg-white py-12">
         <div className="mx-auto max-w-7xl px-6 text-center">

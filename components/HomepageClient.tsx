@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
-import Navbar from "@/components/Navbar"
 import Link from "next/link"
 import {
   Heart,
@@ -241,7 +240,7 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
 
   return (
     <main className="min-h-screen w-full bg-[#faf5f3] font-serif text-neutral-800">
-      <Navbar />
+
 
       {/* Hero wrapper */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#fdf3ec] via-[#faf5f3] to-[#f9e7db]">
