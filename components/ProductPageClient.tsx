@@ -15,7 +15,6 @@ import {
   Truck,
   Award,
   Lock,
-  ArrowRight,
   ThumbsUp,
   Search,
   ShoppingCart,
@@ -240,17 +239,6 @@ export default function ProductPageClient({
               </div>
               <p className="mt-1 text-xs text-gray-500">(MRP. Inclusive of all taxes)</p>
             </div>
-
-            {/* VIP price */}
-            {product.vip_price && (
-              <button type="button" className="mt-3 flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 text-sm text-white hover:bg-gray-800">
-                <span className="font-semibold">AuraFirm VIP price &#8377;{product.vip_price.toLocaleString("en-IN")}</span>
-                <span className="text-white/50">&#xB7;</span>
-                <span className="inline-flex items-center gap-1 text-white/80">
-                  Join from &#8377;2,999 / 3 mo <ArrowRight className="h-3.5 w-3.5" />
-                </span>
-              </button>
-            )}
 
             {product.size_label && (
               <p className="mt-2 text-xs text-gray-500">Net Qty. {product.size_label}</p>
