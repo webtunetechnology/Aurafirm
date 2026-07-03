@@ -139,7 +139,7 @@ export default function AdminDashboardClient({
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         <StatCard title="Total Orders"     value={stats.totalOrders}    change={stats.changes.orders}    icon={ShoppingBag}   />
         <StatCard title="Total Sales"      value={stats.totalRevenue}   change={stats.changes.revenue}   icon={IndianRupee}   prefix="₹" />
         <StatCard title="Total Customers"  value={stats.totalCustomers} change={stats.changes.customers} icon={Users}         />
@@ -148,7 +148,7 @@ export default function AdminDashboardClient({
       </div>
 
       {/* Chart + top products + recent orders */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_280px_340px]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-[1fr_280px_340px]">
 
         {/* Sales Overview */}
         <div className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm">
@@ -254,7 +254,7 @@ export default function AdminDashboardClient({
 
       {/* Low stock alert */}
       {stats.lowStockProducts > 0 && (
-        <div className="flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50 px-6 py-4">
+        <div className="flex flex-col gap-4 rounded-2xl border border-amber-100 bg-amber-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
               <AlertTriangle className="h-6 w-6 text-amber-600" />

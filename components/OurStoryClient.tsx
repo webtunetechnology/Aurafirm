@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useCart } from "@/lib/cart-context"
-import Navbar from "@/components/Navbar"
 import { useState } from "react"
 import {
   ShoppingBag,
@@ -88,7 +87,7 @@ export default function OurStoryClient({
   return (
     <div className="min-h-screen bg-[#faf5f3] font-sans">
 
-      <Navbar />
+
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#8a4a32] px-6 py-24 text-white">

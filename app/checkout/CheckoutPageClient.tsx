@@ -96,7 +96,6 @@ export default function CheckoutPage() {
   // Order state
   const [placing, setPlacing] = useState(false)
   const [orderDone, setOrderDone] = useState(false)
-  const [orderId, setOrderId] = useState("")
   const [orderNumber, setOrderNumber] = useState("")
   const [orderError, setOrderError] = useState("")
 
@@ -127,6 +126,17 @@ export default function CheckoutPage() {
     script.src = "https://checkout.razorpay.com/v1/checkout.js"
     script.async = true
     document.body.appendChild(script)
+  }, [])
+
+  // If the Razorpay callback redirected back here after a failed/cancelled
+  // payment, surface a message instead of leaving the user confused.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("payment") === "failed") {
+      setOrderError("Your payment was not completed. No amount has been charged — please try again.")
+      // Clean the query string so a refresh doesn't re-show the message
+      window.history.replaceState({}, "", "/checkout")
+    }
   }, [])
 
   const updateBilling = (field: string, value: string | boolean) =>
@@ -197,7 +207,44 @@ export default function CheckoutPage() {
 
       if (!res.ok) throw new Error(data.error || "Failed to create order")
 
-      // Open Razorpay modal
+      // Persist the order as PENDING *before* opening Razorpay. Razorpay may
+      // complete via a full-page redirect (redirect mode) rather than the
+      // in-page handler, in which case all client state (cart, address) is
+      // gone. By saving first and finalizing in the server-side callback route
+      // keyed on razorpay_order_id, the flow works in BOTH modes and never
+      // lands on a 404 / "This page couldn't load" screen after payment.
+      const shippingAddr = shipDifferent ? shipping : {
+        fullName: billing.fullName, address: billing.address,
+        apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin,
+      }
+      await createOrder({
+        customerName: billing.fullName,
+        customerEmail: billing.email,
+        customerPhone: `+91${billing.phone}`,
+        billingAddress: { address: billing.address, apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin },
+        shippingAddress: shippingAddr as Record<string, string>,
+        subtotal,
+        discount,
+        shippingCost,
+        tax: 0,
+        grandTotal,
+        couponCode: couponApplied ? coupon : undefined,
+        paymentMethod: "razorpay",
+        paymentStatus: "pending",
+        razorpayOrderId: data.orderId,
+        deliveryMethod: delivery,
+        items: items.map((i) => ({
+          productName: i.name,
+          productImage: i.image,
+          price: i.price,
+          quantity: i.quantity,
+          total: i.price * i.quantity,
+        })),
+      })
+
+      // Open Razorpay. `callback_url` + `redirect: true` routes the result
+      // through our server callback, which verifies the signature and redirects
+      // to the success page.
       const options = {
         key: data.keyId,
         amount: data.amount,
@@ -212,51 +259,18 @@ export default function CheckoutPage() {
           contact: billing.phone,
         },
         theme: { color: "#c9744e" },
-        handler: async (response: { razorpay_payment_id: string; razorpay_order_id: string }) => {
-          try {
-            const shippingAddr = shipDifferent ? shipping : {
-              fullName: billing.fullName, address: billing.address,
-              apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin,
-            }
-            const result = await createOrder({
-              customerName: billing.fullName,
-              customerEmail: billing.email,
-              customerPhone: `+91${billing.phone}`,
-              billingAddress: { address: billing.address, apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin },
-              shippingAddress: shippingAddr as Record<string, string>,
-              subtotal,
-              discount,
-              shippingCost,
-              tax: 0,
-              grandTotal,
-              couponCode: couponApplied ? coupon : undefined,
-              paymentMethod: "razorpay",
-              paymentStatus: "paid",
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              deliveryMethod: delivery,
-              items: items.map((i) => ({
-                productName: i.name,
-                productImage: i.image,
-                price: i.price,
-                quantity: i.quantity,
-                total: i.price * i.quantity,
-              })),
-            })
-            setOrderId(response.razorpay_payment_id)
-            setOrderNumber(result.orderNumber)
-          } catch (e) {
-            console.error("[v0] createOrder error:", e)
-          }
-          clearCart()
-          setOrderDone(true)
-        },
+        callback_url: `${window.location.origin}/api/razorpay/callback`,
+        redirect: true,
         modal: {
           ondismiss: () => setPlacing(false),
         },
       }
 
       const rzp = new window.Razorpay(options)
+      rzp.on("payment.failed", (resp: { error?: { description?: string } }) => {
+        setOrderError(resp?.error?.description || "Payment failed. Please try again.")
+        setPlacing(false)
+      })
       rzp.open()
     } catch (err) {
       setOrderError(err instanceof Error ? err.message : String(err))
@@ -267,7 +281,6 @@ export default function CheckoutPage() {
   if (orderDone) {
     return (
       <div className="min-h-screen bg-[#faf5f3] font-sans text-neutral-800">
-        <SiteNavbar />
         <main className="mx-auto flex max-w-xl flex-col items-center gap-6 px-4 py-20 text-center">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#eef5eb]">
             <Check className="h-12 w-12 text-[#6b8f5e]" />

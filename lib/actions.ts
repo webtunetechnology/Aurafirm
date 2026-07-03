@@ -1,5 +1,6 @@
 'use server'
 
+import crypto from 'crypto'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { normalizePhone } from '@/lib/phone'
 import { revalidatePath } from 'next/cache'
@@ -183,7 +184,9 @@ export async function createOrder(payload: CreateOrderPayload) {
       razorpay_order_id: payload.razorpayOrderId ?? null,
       razorpay_payment_id: payload.razorpayPaymentId ?? null,
       delivery_method: payload.deliveryMethod,
-      status: payload.paymentMethod === 'cod' ? 'pending' : 'processing',
+      // Only move to "processing" once payment is confirmed. Unpaid online
+      // orders (awaiting Razorpay redirect callback) and COD stay "pending".
+      status: payload.paymentStatus === 'paid' ? 'processing' : 'pending',
     })
     .select()
     .single()
@@ -206,6 +209,70 @@ export async function createOrder(payload: CreateOrderPayload) {
 
   revalidatePath('/account/orders')
   return { orderId: order.id, orderNumber, customerId }
+}
+
+// Verify a Razorpay payment signature server-side.
+// Razorpay signs `${razorpay_order_id}|${razorpay_payment_id}` with the key secret
+// using HMAC-SHA256. We recompute it and compare. Never trust a "paid" status from
+// the client without this check.
+export async function verifyRazorpayPayment(params: {
+  razorpayOrderId: string
+  razorpayPaymentId: string
+  razorpaySignature: string
+}) {
+  const secret = process.env.RAZORPAY_KEY_SECRET
+  if (!secret) {
+    console.error('[v0] RAZORPAY_KEY_SECRET is not set')
+    return { valid: false }
+  }
+
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(`${params.razorpayOrderId}|${params.razorpayPaymentId}`)
+    .digest('hex')
+
+  // Constant-time compare to avoid timing attacks
+  const a = Buffer.from(expected)
+  const b = Buffer.from(params.razorpaySignature)
+  const valid = a.length === b.length && crypto.timingSafeEqual(a, b)
+
+  return { valid }
+}
+
+// Finalize a pending Razorpay order after the payment redirect/callback.
+// Verifies the signature, then marks the matching pending order as paid.
+// Returns the order_number so the caller can redirect to the success page.
+export async function finalizeRazorpayOrder(params: {
+  razorpayOrderId: string
+  razorpayPaymentId: string
+  razorpaySignature: string
+}): Promise<{ ok: boolean; orderNumber?: string }> {
+  const { valid } = await verifyRazorpayPayment(params)
+  if (!valid) {
+    console.error('[v0] finalizeRazorpayOrder: invalid signature')
+    return { ok: false }
+  }
+
+  const adminSupabase = createAdminClient()
+
+  const { data: order, error } = await adminSupabase
+    .from('orders')
+    .update({
+      payment_status: 'paid',
+      razorpay_payment_id: params.razorpayPaymentId,
+      status: 'processing',
+    })
+    .eq('razorpay_order_id', params.razorpayOrderId)
+    .select('order_number')
+    .single()
+
+  if (error || !order) {
+    console.error('[v0] finalizeRazorpayOrder: order not found', error?.message)
+    return { ok: false }
+  }
+
+  revalidatePath('/account/orders')
+  return { ok: true, orderNumber: order.order_number as string }
 }
 
 // ─── Customer orders ───────────────────────────────────────────────────────────

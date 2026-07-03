@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
-import Navbar from "@/components/Navbar"
 import Link from "next/link"
 import {
   Heart,
@@ -66,7 +65,7 @@ const testimonials = [
       "You can tell Aurafirm uses globally trusted, high-grade ingredients. From skin health to overall wellness, every product reflects genuine care and a commitment to quality.",
   },
   {
-    name: "Bessie Cooper",
+    name: "Ananya Iyer",
     role: "Verified Customer",
     img: "/avatars/c3.png",
     title: "The Best Thing I've Used for My Skin!",
@@ -241,7 +240,7 @@ export default function LumoraLanding({ products = [] }: { products: DBProduct[]
 
   return (
     <main className="min-h-screen w-full bg-[#faf5f3] font-serif text-neutral-800">
-      <Navbar />
+
 
       {/* Hero wrapper */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#fdf3ec] via-[#faf5f3] to-[#f9e7db]">

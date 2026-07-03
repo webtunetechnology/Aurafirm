@@ -105,7 +105,7 @@ export default function AdminCouponsPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {[
           { label: "Total Coupons", value: coupons.length },
           { label: "Active Coupons", value: coupons.filter((c) => c.is_active).length },

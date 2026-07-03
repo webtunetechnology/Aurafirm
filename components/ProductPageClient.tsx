@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Navbar from "@/components/Navbar"
 import {
   ChevronRight,
   ChevronDown,
@@ -148,7 +147,7 @@ export default function ProductPageClient({
 
   return (
     <main className="min-h-screen bg-white text-gray-900">
-      <Navbar />
+
 
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6">
         {/* Breadcrumb */}
