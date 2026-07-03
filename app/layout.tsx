@@ -94,11 +94,19 @@ export default function RootLayout({
           {children}
           <Toaster
             position="bottom-right"
+            duration={2200}
             toastOptions={{
               style: {
                 background: '#ffffff',
                 color: '#3f3f46',
                 border: '1px solid #ecdcd3',
+                borderRadius: '12px',
+                padding: '14px 16px',
+                boxShadow: '0 8px 24px rgba(201, 116, 78, 0.12)',
+              },
+              classNames: {
+                title: 'text-sm font-medium',
+                description: 'text-xs text-neutral-500',
               },
             }}
           />
