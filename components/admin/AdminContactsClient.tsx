@@ -71,7 +71,7 @@ export default function AdminContactsClient({ messages }: { messages: Message[] 
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -116,10 +116,10 @@ export default function AdminContactsClient({ messages }: { messages: Message[] 
       </div>
 
       {/* Layout: list + detail panel */}
-      <div className="flex gap-4 overflow-hidden">
+      <div className="flex flex-col gap-4 overflow-hidden md:flex-row">
 
         {/* Message list */}
-        <div className={`flex flex-col gap-2 overflow-y-auto ${selected ? "w-96 shrink-0" : "w-full"}`}>
+        <div className={`flex flex-col gap-2 overflow-y-auto ${selected ? "md:w-96 md:shrink-0" : "w-full"}`}>
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-neutral-200 bg-white py-16 text-center">
               <MessageSquare className="h-8 w-8 text-neutral-300" />

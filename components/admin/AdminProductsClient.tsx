@@ -139,7 +139,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
   return (
     <div className="rounded-xl border border-neutral-100 bg-neutral-50/60 p-4">
       <p className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400">{title}</p>
-      <div className="grid grid-cols-2 gap-4">{children}</div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">{children}</div>
     </div>
   )
 }
@@ -341,24 +341,24 @@ export default function AdminProductsClient({ products: initial }: { products: P
         </div>
       </div>
 
-      {/* Full-screen centered modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowForm(false)}
-          />
+          {/* Full-screen centered modal */}
+          {showForm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+              {/* Backdrop */}
+              <div
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowForm(false)}
+              />
 
-          {/* Modal */}
-          <div className="relative flex h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+              {/* Modal */}
+              <div className="relative flex h-[96vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:h-[92vh]">
 
             {/* ── Modal Header ── */}
             <div className="shrink-0 border-b border-neutral-100">
               {/* Accent stripe */}
               <div className="h-1 w-full bg-[#c9744e]" />
-              <div className="flex items-center justify-between px-7 py-4">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-7 md:py-4">
+                <div className="flex items-center gap-3">
                   {/* Product thumbnail if editing */}
                   {editing?.image_url ? (
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#fdf0e8]">
@@ -412,47 +412,72 @@ export default function AdminProductsClient({ products: initial }: { products: P
             </div>
 
             {/* ── Body: sidebar tabs + scrollable content ── */}
-            <div className="flex min-h-0 flex-1">
+            <div className="flex min-h-0 flex-1 flex-col md:flex-row">
 
-              {/* Vertical tab sidebar */}
-              <aside className="flex w-48 shrink-0 flex-col gap-1 border-r border-neutral-100 bg-neutral-50/70 px-3 py-4">
-                {TABS.map(({ key, label, icon: Icon }, idx) => (
-                  <button
-                    key={key}
-                    onClick={() => setActiveTab(key)}
-                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
-                      activeTab === key
-                        ? "bg-[#fdf0e8] text-[#a0522d]"
-                        : "text-neutral-500 hover:bg-white hover:text-neutral-800"
-                    }`}
-                  >
-                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold ${
-                      activeTab === key ? "bg-[#c9744e] text-white" : "bg-neutral-200 text-neutral-500"
-                    }`}>
-                      {idx + 1}
-                    </span>
-                    {label}
-                  </button>
-                ))}
+              {/* Tab nav — horizontal scrollable strip on mobile, vertical sidebar on md+ */}
+              <aside className="shrink-0 border-b border-neutral-100 bg-neutral-50/70 md:w-48 md:border-b-0 md:border-r">
+                {/* Mobile: horizontal scroll strip */}
+                <div className="flex gap-1 overflow-x-auto px-3 py-2 md:hidden">
+                  {TABS.map(({ key, label }, idx) => (
+                    <button
+                      key={key}
+                      onClick={() => setActiveTab(key)}
+                      className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        activeTab === key
+                          ? "bg-[#fdf0e8] text-[#a0522d]"
+                          : "text-neutral-500 hover:bg-white hover:text-neutral-800"
+                      }`}
+                    >
+                      <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[10px] font-bold ${
+                        activeTab === key ? "bg-[#c9744e] text-white" : "bg-neutral-200 text-neutral-500"
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
 
-                {/* Progress hint */}
-                <div className="mt-auto pt-4">
-                  <div className="rounded-xl bg-white p-3 text-[11px] text-neutral-400">
-                    <p className="mb-1.5 font-semibold text-neutral-600">
-                      {TABS.findIndex((t) => t.key === activeTab) + 1} / {TABS.length} sections
-                    </p>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
-                      <div
-                        className="h-full rounded-full bg-[#c9744e] transition-all"
-                        style={{ width: `${((TABS.findIndex((t) => t.key === activeTab) + 1) / TABS.length) * 100}%` }}
-                      />
+                {/* Desktop: vertical list */}
+                <div className="hidden flex-col gap-1 px-3 py-4 md:flex">
+                  {TABS.map(({ key, label, icon: Icon }, idx) => (
+                    <button
+                      key={key}
+                      onClick={() => setActiveTab(key)}
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
+                        activeTab === key
+                          ? "bg-[#fdf0e8] text-[#a0522d]"
+                          : "text-neutral-500 hover:bg-white hover:text-neutral-800"
+                      }`}
+                    >
+                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold ${
+                        activeTab === key ? "bg-[#c9744e] text-white" : "bg-neutral-200 text-neutral-500"
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      {label}
+                    </button>
+                  ))}
+
+                  {/* Progress hint */}
+                  <div className="mt-auto pt-4">
+                    <div className="rounded-xl bg-white p-3 text-[11px] text-neutral-400">
+                      <p className="mb-1.5 font-semibold text-neutral-600">
+                        {TABS.findIndex((t) => t.key === activeTab) + 1} / {TABS.length} sections
+                      </p>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
+                        <div
+                          className="h-full rounded-full bg-[#c9744e] transition-all"
+                          style={{ width: `${((TABS.findIndex((t) => t.key === activeTab) + 1) / TABS.length) * 100}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </aside>
 
               {/* Scrollable tab content */}
-              <div className="flex-1 overflow-y-auto px-7 py-6">
+              <div className="flex-1 overflow-y-auto px-4 py-5 md:px-7 md:py-6">
 
                 {/* ── BASIC INFO ── */}
                 {activeTab === "basic" && (

@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/lib/cart-context'
 import Navbar from '@/components/Navbar'
+import { Toaster } from 'sonner'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -91,6 +92,24 @@ export default function RootLayout({
         <CartProvider>
           <Navbar />
           {children}
+          <Toaster
+            position="bottom-right"
+            duration={2200}
+            toastOptions={{
+              style: {
+                background: '#ffffff',
+                color: '#3f3f46',
+                border: '1px solid #ecdcd3',
+                borderRadius: '12px',
+                padding: '14px 16px',
+                boxShadow: '0 8px 24px rgba(201, 116, 78, 0.12)',
+              },
+              classNames: {
+                title: 'text-sm font-medium',
+                description: 'text-xs text-neutral-500',
+              },
+            }}
+          />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </CartProvider>
       </body>

@@ -40,7 +40,7 @@ export default function AdminCustomersPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           { title: "Total Customers", value: customers.length, icon: Users, prefix: "" },
           { title: "Active Customers", value: customers.filter((c) => (c.order_count ?? 0) > 0).length, icon: UserCheck, prefix: "" },
