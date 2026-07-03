@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { Lock, Eye, EyeOff, ShieldCheck, CheckCircle2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import Navbar from "@/components/Navbar"
 
 export default function ChangePasswordPageClient() {
   const router = useRouter()
@@ -85,22 +85,7 @@ export default function ChangePasswordPageClient() {
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: "#fdf6f2" }}>
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-5 md:px-10">
-        <Link href="/">
-          <Image
-            src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-            alt="AURAFIRM logo"
-            width={130}
-            height={44}
-            className="h-10 w-auto object-contain"
-          />
-        </Link>
-        <Link href="/account/orders" className="flex items-center gap-1.5 text-sm text-[#c9744e] hover:underline">
-          <ArrowLeft className="h-4 w-4" />
-          Back to My Orders
-        </Link>
-      </header>
+      <Navbar />
 
       {/* Main */}
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">

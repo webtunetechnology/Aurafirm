@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { User, Package, LogOut, ChevronDown } from "lucide-react"
+import { User, Package, LogOut, ChevronDown, KeyRound } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 type AuthState =
@@ -112,6 +112,14 @@ export default function UserMenu({ iconClassName = "h-4 w-4" }: { iconClassName?
             >
               <Package className="h-4 w-4" />
               My Orders
+            </Link>
+            <Link
+              href="/account/password"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-700 hover:bg-[#fdf0e8] hover:text-[#a0522d]"
+            >
+              <KeyRound className="h-4 w-4" />
+              Change Password
             </Link>
           </div>
 

@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import {
   Package,
   ChevronRight,
-  LogOut,
   Clock,
   CheckCircle,
   Truck,
@@ -16,10 +15,10 @@ import {
   ShoppingBag,
   ExternalLink,
   AlertTriangle,
-  KeyRound,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { getMyOrders, cancelMyOrder } from "@/lib/actions"
+import Navbar from "@/components/Navbar"
 
 // Order statuses at which the customer can still cancel (before it ships)
 const CANCELLABLE = ["pending", "processing"]
@@ -82,13 +81,6 @@ export default function MyOrdersPage() {
     load()
   }, [router])
 
-  async function handleLogout() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/")
-    router.refresh()
-  }
-
   function openCancelDialog(order: Order) {
     setCancelTarget(order)
     setCancelReason("")
@@ -119,39 +111,7 @@ export default function MyOrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#fdf6f2]">
-      {/* Header */}
-      <header className="border-b border-[#ead5c8] bg-white px-6 py-4 md:px-10">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/">
-            <Image
-              src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-              alt="AURAFIRM logo"
-              width={130}
-              height={44}
-              className="h-10 w-auto object-contain"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/cart" className="hidden text-sm text-neutral-600 hover:text-[#c9744e] sm:inline">
-              Continue Shopping
-            </Link>
-            <Link
-              href="/account/password"
-              className="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs text-neutral-600 hover:border-[#c9744e] hover:text-[#c9744e]"
-            >
-              <KeyRound className="h-3.5 w-3.5" />
-              Change Password
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs text-neutral-600 hover:border-[#c9744e] hover:text-[#c9744e]"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="mx-auto max-w-5xl px-4 py-10 md:px-6">
         {/* Welcome */}

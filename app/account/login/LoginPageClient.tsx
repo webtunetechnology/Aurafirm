@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Lock, Phone, Eye, EyeOff, Leaf, ShieldCheck, FlaskConical, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { normalizePhone } from "@/lib/phone"
+import Navbar from "@/components/Navbar"
 
 const brandValues = [
   { icon: Leaf, title: "Vegan", sub: "100% Plant Powered" },
@@ -45,21 +45,7 @@ export default function CustomerLoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col" style={{ backgroundColor: "#fdf6f2" }}>
-      {/* Header */}
-      <header className="flex items-center justify-between px-10 py-5">
-        <Link href="/">
-          <Image
-            src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
-            alt="AURAFIRM logo"
-            width={130}
-            height={44}
-            className="h-10 w-auto object-contain"
-          />
-        </Link>
-        <Link href="/" className="text-sm text-[#c9744e] hover:underline">
-          Continue Shopping
-        </Link>
-      </header>
+      <Navbar />
 
       {/* Main */}
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
