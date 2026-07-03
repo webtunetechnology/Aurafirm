@@ -64,7 +64,7 @@ export default function AdminReviewsPage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-extrabold text-neutral-900">Customer Reviews</h1>
           <p className="mt-0.5 text-xs text-neutral-500">
@@ -80,7 +80,7 @@ export default function AdminReviewsPage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           { label: "Total Reviews", value: reviews.length, color: "text-neutral-900" },
           { label: "Pending Approval", value: pendingCount, color: "text-amber-600" },
@@ -135,7 +135,7 @@ export default function AdminReviewsPage() {
         ) : (
           <div className="divide-y divide-neutral-100">
             {filtered.map((review) => (
-              <div key={review.id} className="flex items-start gap-4 px-5 py-4">
+              <div key={review.id} className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-start">
                 {/* Product thumbnail */}
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-neutral-100 bg-[#fdf8f5]">
                   {review.products?.image_url ? (

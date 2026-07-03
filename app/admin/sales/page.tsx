@@ -84,7 +84,7 @@ export default function AdminSalesPage() {
       </div>
 
       {/* Orders trend line + pie charts */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_260px_260px]">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-[1fr_260px_260px]">
         {/* Monthly orders trend */}
         <div className="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm">
           <h2 className="mb-4 font-bold text-neutral-900">Monthly Orders</h2>

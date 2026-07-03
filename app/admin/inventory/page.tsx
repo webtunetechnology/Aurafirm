@@ -53,7 +53,7 @@ export default function AdminInventoryPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           { label: "In Stock", value: inStock, color: "text-green-700", bg: "bg-green-100", icon: CheckCircle },
           { label: "Low Stock (< 20)", value: lowStock, color: "text-amber-700", bg: "bg-amber-100", icon: AlertTriangle },

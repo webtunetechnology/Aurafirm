@@ -135,10 +135,10 @@ function OrderDrawer({ order, onClose, onSaved }: {
         </div>
 
         {/* Body */}
-        <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
 
           {/* Left — order info (read-only) */}
-          <div className="flex w-80 shrink-0 flex-col gap-5 overflow-y-auto border-r border-neutral-100 bg-neutral-50/60 p-5">
+          <div className="flex shrink-0 flex-col gap-5 overflow-y-auto border-b border-neutral-100 bg-neutral-50/60 p-5 md:w-80 md:border-b-0 md:border-r">
 
             {/* Order status timeline */}
             <div className="rounded-xl border border-neutral-100 bg-white p-4">
@@ -257,7 +257,7 @@ function OrderDrawer({ order, onClose, onSaved }: {
                 <h3 className="mb-1 text-base font-bold text-neutral-900">Order Status</h3>
                 <p className="mb-4 text-xs text-neutral-400">Update the fulfilment status of this order.</p>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {STATUS_OPTIONS.map((s) => {
                     const m = STATUS_META[s]
                     const isActive = status === s
@@ -470,7 +470,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard title="Total Orders"    value={totalOrders}    icon={ShoppingBag} />
         <StatCard title="Active"          value={pendingCount}   icon={Clock} />
         <StatCard title="Delivered"       value={completedCount} icon={CheckCircle} />
