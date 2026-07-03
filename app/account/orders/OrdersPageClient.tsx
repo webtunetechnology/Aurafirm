@@ -103,7 +103,7 @@ export default function MyOrdersPage() {
             My Orders
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Welcome back, <span className="font-medium text-[#c9744e]">{customerName}</span>. Track all your Aurafirm orders here.
+            Welcome back, <span className="font-medium text-[#c9744e]">{customerName}</span>. Track all your AURAFIRM orders here.
           </p>
         </div>
 
