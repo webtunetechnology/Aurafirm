@@ -134,11 +134,11 @@ function OrderDrawer({ order, onClose, onSaved }: {
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
+        {/* Body — single scroll on mobile, two independent panes on desktop */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
 
           {/* Left — order info (read-only) */}
-          <div className="flex shrink-0 flex-col gap-5 overflow-y-auto border-b border-neutral-100 bg-neutral-50/60 p-5 md:w-80 md:border-b-0 md:border-r">
+          <div className="flex flex-col gap-5 border-b border-neutral-100 bg-neutral-50/60 p-5 md:w-80 md:shrink-0 md:overflow-y-auto md:border-b-0 md:border-r">
 
             {/* Order status timeline */}
             <div className="rounded-xl border border-neutral-100 bg-white p-4">
@@ -249,7 +249,7 @@ function OrderDrawer({ order, onClose, onSaved }: {
           </div>
 
           {/* Right — editable shipping + status form */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="p-5 md:flex-1 md:overflow-y-auto md:p-6">
             <div className="space-y-6">
 
               {/* Section: Status */}
