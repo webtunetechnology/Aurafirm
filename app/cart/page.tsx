@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import CartPageClient from "./CartPageClient"
+import { getProducts } from "@/lib/actions"
 
 export const metadata: Metadata = {
   title: "Your Cart",
@@ -9,6 +10,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function CartPage() {
-  return <CartPageClient />
+export default async function CartPage() {
+  const products = await getProducts().catch(() => [])
+
+  const suggestedProducts = (products ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    subtitle: p.subtitle ?? p.category ?? "",
+    price: p.price,
+    href: `/product/${p.slug ?? p.id}`,
+    image: p.image_url ?? "",
+    tags: (p.tags ?? []) as string[],
+  }))
+
+  return <CartPageClient suggestedProducts={suggestedProducts} />
 }

@@ -20,26 +20,15 @@ import {
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 
-const suggestedProducts = [
-  {
-    id: "fusion-4x1-face-serum",
-    name: "AuraFirm Fusion 4x1 Face Serum",
-    subtitle: "Hyaluronic Acid, Niacinamide, Peptides & Collagen",
-    price: 1199,
-    href: "/product/fusion-4x1-face-serum",
-    image:
-      "https://res.cloudinary.com/df01whs60/image/upload/v1782241602/ChatGPT_Image_Jun_19__2026__10_00_30_PM-removebg-preview_hsizp4.png",
-  },
-  {
-    id: "gluta-tab-effervescent-tablets",
-    name: "AuraFirm Gluta Tab",
-    subtitle: "L-Glutathione Effervescent Tablets",
-    price: 599,
-    href: "/product/gluta-tab-effervescent-tablets",
-    image:
-      "https://res.cloudinary.com/df01whs60/image/upload/v1782241602/ChatGPT_Image_Jun_19__2026__10_00_30_PM-removebg-preview_hsizp4.png",
-  },
-]
+type SuggestedProduct = {
+  id: string
+  name: string
+  subtitle: string
+  price: number
+  href: string
+  image: string
+  tags: string[]
+}
 
 const trustBadges = [
   { icon: Truck, title: "Free Shipping", sub: "On all orders" },
@@ -59,10 +48,14 @@ const footerColumns = [
   },
 ]
 
-export default function CartPage() {
+export default function CartPage({ suggestedProducts = [] }: { suggestedProducts?: SuggestedProduct[] }) {
   const { items, removeItem, updateQuantity, addItem } = useCart()
   const [wishlist, setWishlist] = useState<Set<string>>(new Set())
   const [wishlistSuggested, setWishlistSuggested] = useState<Set<string>>(new Set())
+
+  // Only suggest real DB products that aren't already in the cart
+  const cartIds = new Set(items.map((i) => i.id))
+  const suggestions = suggestedProducts.filter((p) => !cartIds.has(p.id)).slice(0, 4)
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shippingCost = 0
@@ -240,56 +233,69 @@ export default function CartPage() {
             </div>
 
             {/* You May Also Like */}
-            <div>
-              <h2 className="text-xl font-extrabold tracking-tight text-neutral-800">
-                You May <span className="text-[#c9744e]">Also Like</span>
-              </h2>
-              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {suggestedProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex flex-col rounded-xl border border-[#f0d8c8] bg-white p-3 shadow-sm"
-                  >
-                    <div className="flex h-28 items-center justify-center overflow-hidden rounded-lg bg-[#fbede5]">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        width={100}
-                        height={100}
-                        className="h-full w-auto object-contain mix-blend-multiply"
-                      />
-                    </div>
-                    <p className="mt-2 text-xs font-bold text-neutral-800 leading-tight">{product.name}</p>
-                    <p className="mt-0.5 text-[10px] text-neutral-500">{product.subtitle}</p>
-                    <p className="mt-1 text-sm font-semibold text-neutral-800">₹{product.price}</p>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <button
-                        onClick={() =>
-                          addItem({
-                            id: product.id,
-                            name: product.name,
-                            subtitle: product.subtitle,
-                            price: product.price,
-                            image: product.image,
-                            tags: ["Vegan", "Dermatest Tested"],
-                          })
-                        }
-                        className="flex-1 rounded-full bg-[#c9744e] py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#b86244]"
+            {suggestions.length > 0 && (
+              <div>
+                <h2 className="text-xl font-extrabold tracking-tight text-neutral-800">
+                  You May <span className="text-[#c9744e]">Also Like</span>
+                </h2>
+                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  {suggestions.map((product) => (
+                    <div
+                      key={product.id}
+                      className="flex flex-col rounded-xl border border-[#f0d8c8] bg-white p-3 shadow-sm"
+                    >
+                      <Link
+                        href={product.href}
+                        className="flex h-28 items-center justify-center overflow-hidden rounded-lg bg-[#fbede5]"
                       >
-                        Add to Cart
-                      </button>
-                      <button
-                        aria-label="Add to wishlist"
-                        onClick={() => toggleWishlistSuggested(product.id)}
-                        className={`transition-colors ${wishlistSuggested.has(product.id) ? "text-[#c9744e]" : "text-neutral-400 hover:text-[#c9744e]"}`}
-                      >
-                        <Heart className={`h-4 w-4 ${wishlistSuggested.has(product.id) ? "fill-current" : ""}`} />
-                      </button>
+                        {product.image ? (
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            width={100}
+                            height={100}
+                            className="h-full w-auto object-contain mix-blend-multiply"
+                          />
+                        ) : (
+                          <ShoppingCart className="h-8 w-8 text-[#e3a985]" />
+                        )}
+                      </Link>
+                      <Link href={product.href} className="mt-2 hover:text-[#c9744e]">
+                        <p className="text-xs font-bold text-neutral-800 leading-tight">{product.name}</p>
+                      </Link>
+                      <p className="mt-0.5 text-[10px] text-neutral-500">{product.subtitle}</p>
+                      <p className="mt-1 text-sm font-semibold text-neutral-800">
+                        ₹{product.price.toLocaleString("en-IN")}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <button
+                          onClick={() =>
+                            addItem({
+                              id: product.id,
+                              name: product.name,
+                              subtitle: product.subtitle,
+                              price: product.price,
+                              image: product.image,
+                              tags: product.tags,
+                            })
+                          }
+                          className="flex-1 rounded-full bg-[#c9744e] py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#b86244]"
+                        >
+                          Add to Cart
+                        </button>
+                        <button
+                          aria-label="Add to wishlist"
+                          onClick={() => toggleWishlistSuggested(product.id)}
+                          className={`transition-colors ${wishlistSuggested.has(product.id) ? "text-[#c9744e]" : "text-neutral-400 hover:text-[#c9744e]"}`}
+                        >
+                          <Heart className={`h-4 w-4 ${wishlistSuggested.has(product.id) ? "fill-current" : ""}`} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* RIGHT: Order summary */}
