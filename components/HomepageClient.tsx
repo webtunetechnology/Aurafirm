@@ -65,7 +65,7 @@ const testimonials = [
       "You can tell Aurafirm uses globally trusted, high-grade ingredients. From skin health to overall wellness, every product reflects genuine care and a commitment to quality.",
   },
   {
-    name: "Bessie Cooper",
+    name: "Ananya Iyer",
     role: "Verified Customer",
     img: "/avatars/c3.png",
     title: "The Best Thing I've Used for My Skin!",
