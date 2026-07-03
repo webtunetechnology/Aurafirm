@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { normalizePhone } from '@/lib/phone'
 import { revalidatePath } from 'next/cache'
 
 // ─── Products ─────────────────────────────────────────────────────────────────
@@ -111,10 +112,9 @@ export async function createOrder(payload: CreateOrderPayload) {
   // at checkout time, so the anon client would be blocked by RLS on every table
   const adminSupabase = createAdminClient()
 
-  // Normalize to exactly 10 digits — strip country code (91/+91) if present
-  let digits = payload.customerPhone.replace(/\D/g, '')
-  if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2)
-  if (digits.length === 11 && digits.startsWith('0'))  digits = digits.slice(1)
+  // Normalize to exactly 10 digits — strip country code (91/+91) if present.
+  // Shared with the login page so account creation and login always agree.
+  const digits = normalizePhone(payload.customerPhone)
   const fakeEmail = `${digits}@aurafirm.customer`
   const password = digits
 

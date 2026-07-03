@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Lock, Phone, Eye, EyeOff, Leaf, ShieldCheck, FlaskConical, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { normalizePhone } from "@/lib/phone"
 
 const brandValues = [
   { icon: Leaf, title: "Vegan", sub: "100% Plant Powered" },
@@ -27,7 +28,7 @@ export default function CustomerLoginPage() {
     setError("")
     setLoading(true)
     const supabase = createClient()
-    const digits = phone.replace(/\D/g, "")
+    const digits = normalizePhone(phone)
     const fakeEmail = `${digits}@aurafirm.customer`
     const { error: err } = await supabase.auth.signInWithPassword({
       email: fakeEmail,
