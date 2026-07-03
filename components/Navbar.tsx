@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { useState } from "react"
 import {
   ShoppingCart,
@@ -25,6 +26,12 @@ export default function Navbar() {
   const { items } = useCart()
   const itemCount = items.reduce((s, i) => s + i.quantity, 0)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const pathname = usePathname()
+
+  // The storefront navbar should never appear in the admin panel (or admin login).
+  if (pathname?.startsWith("/admin")) {
+    return null
+  }
 
   return (
     <>

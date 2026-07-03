@@ -59,26 +59,6 @@ export default function AdminLoginPage() {
         <p className="mb-2 text-sm text-neutral-500">Sign in to your admin account to continue</p>
         <div className="mb-8 h-0.5 w-12 rounded bg-[#c9744e]" />
 
-        {/* First-time setup notice */}
-        <div className="mb-4 w-full max-w-md rounded-xl border border-[#e8cabb] bg-[#fdf1eb] px-4 py-3 text-xs text-neutral-700">
-          <p className="font-semibold text-[#a0522d]">First time setup?</p>
-          <p className="mt-0.5">
-            Visit{" "}
-            <a
-              href="/api/admin/seed"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-[#c9744e] underline underline-offset-2"
-            >
-              /api/admin/seed
-            </a>{" "}
-            once to create the admin account, then log in with:
-          </p>
-          <p className="mt-1 font-mono text-[11px] text-neutral-600">
-            Email: admin@aurafirm.com &nbsp;|&nbsp; Password: Aurafirm@2025
-          </p>
-        </div>
-
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
           <h2 className="mb-1 text-center text-xl font-bold text-neutral-800">
             Admin <span className="text-[#c9744e]">Login</span>
