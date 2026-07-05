@@ -16,7 +16,7 @@ import { useCart } from "@/lib/cart-context"
 import UserMenu from "@/components/UserMenu"
 
 const navItems = [
-  { label: "Shop",         href: "/shop" },
+  { label: "Home",         href: "/" },
   { label: "Our Story",    href: "/about" },
   { label: "Why AURAFIRM", href: "/why-aurafirm" },
   { label: "Contact",      href: "/contact" },
