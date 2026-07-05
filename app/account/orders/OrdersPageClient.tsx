@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import {
   Package,
   ChevronRight,
@@ -16,7 +15,6 @@ import {
   ExternalLink,
   AlertTriangle,
 } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { getMyOrders, cancelMyOrder } from "@/lib/actions"
 
 // Order statuses at which the customer can still cancel (before it ships)
@@ -48,37 +46,18 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
 
 type Order = Awaited<ReturnType<typeof getMyOrders>>[number]
 
-export default function MyOrdersPage() {
-  const router = useRouter()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [customerName, setCustomerName] = useState("")
+interface Props {
+  initialOrders: Order[]
+  customerName: string
+}
+
+export default function MyOrdersPage({ initialOrders, customerName }: Props) {
+  const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null)
   const [cancelReason, setCancelReason] = useState("")
   const [cancelling, setCancelling] = useState(false)
   const [cancelError, setCancelError] = useState("")
-
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.replace("/account/login")
-        return
-      }
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single()
-      setCustomerName(profile?.full_name ?? "Customer")
-      const data = await getMyOrders()
-      setOrders(data)
-      setLoading(false)
-    }
-    load()
-  }, [router])
 
   function openCancelDialog(order: Order) {
     setCancelTarget(order)
@@ -96,7 +75,6 @@ export default function MyOrdersPage() {
       setCancelError(res.message)
       return
     }
-    // Reflect the change locally without a full reload
     setOrders((prev) =>
       prev.map((o) =>
         o.id === cancelTarget.id ? { ...o, status: "cancelled" } : o,
@@ -113,19 +91,15 @@ export default function MyOrdersPage() {
       <main className="mx-auto max-w-5xl px-4 py-10 md:px-6">
         {/* Welcome */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-neutral-900">
-            My Orders
-          </h1>
+          <h1 className="text-2xl font-bold text-neutral-900">My Orders</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Welcome back, <span className="font-medium text-[#c9744e]">{customerName}</span>. Track all your AURAFIRM orders here.
+            Welcome back,{" "}
+            <span className="font-medium text-[#c9744e]">{customerName}</span>.
+            Track all your AURAFIRM orders here.
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#c9744e] border-t-transparent" />
-          </div>
-        ) : orders.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#dbb89e] bg-white py-20">
             <ShoppingBag className="mb-4 h-12 w-12 text-[#c9744e]/40" />
             <h2 className="text-lg font-semibold text-neutral-700">No orders yet</h2>
@@ -167,7 +141,9 @@ export default function MyOrdersPage() {
                         <Icon className="h-3 w-3" />
                         {conf.label}
                       </span>
-                      <span className="font-semibold text-neutral-800">₹{order.grand_total.toLocaleString("en-IN")}</span>
+                      <span className="font-semibold text-neutral-800">
+                        ₹{order.grand_total.toLocaleString("en-IN")}
+                      </span>
                       <ChevronRight className={`h-4 w-4 text-neutral-400 transition-transform ${isOpen ? "rotate-90" : ""}`} />
                     </div>
                   </button>
@@ -189,9 +165,13 @@ export default function MyOrdersPage() {
                             </div>
                             <div className="flex-1">
                               <p className="text-sm font-medium text-neutral-800">{item.product_name}</p>
-                              <p className="text-xs text-neutral-500">Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}</p>
+                              <p className="text-xs text-neutral-500">
+                                Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}
+                              </p>
                             </div>
-                            <p className="text-sm font-semibold text-neutral-800">₹{item.total.toLocaleString("en-IN")}</p>
+                            <p className="text-sm font-semibold text-neutral-800">
+                              ₹{item.total.toLocaleString("en-IN")}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -231,7 +211,7 @@ export default function MyOrdersPage() {
                         ].filter(Boolean).join(", ")}
                       </div>
 
-                      {/* Tracking — shown once the order has shipped */}
+                      {/* Tracking */}
                       {(order.status === "shipped" || order.status === "delivered") &&
                         (order.tracking_url || order.tracking_id) && (
                           <div className="mt-4 rounded-xl border border-[#e3d0ef] bg-[#f7f0fc] p-4">
@@ -265,8 +245,7 @@ export default function MyOrdersPage() {
                               )}
                             </div>
                             {(() => {
-                              const url =
-                                order.tracking_url ?? buildTrackingUrl(order.carrier, order.tracking_id)
+                              const url = order.tracking_url ?? buildTrackingUrl(order.carrier, order.tracking_id)
                               if (!url) return null
                               return (
                                 <a
@@ -283,7 +262,7 @@ export default function MyOrdersPage() {
                           </div>
                         )}
 
-                      {/* Cancellation reason — shown for cancelled orders */}
+                      {/* Cancellation reason */}
                       {order.status === "cancelled" && order.cancellation_reason && (
                         <div className="mt-4 rounded-xl border border-red-100 bg-red-50 p-4 text-xs text-red-700">
                           <span className="font-semibold">Cancellation reason: </span>
@@ -291,7 +270,7 @@ export default function MyOrdersPage() {
                         </div>
                       )}
 
-                      {/* Cancel action — only before the order ships */}
+                      {/* Cancel action */}
                       {CANCELLABLE.includes(order.status) && (
                         <div className="mt-4 flex justify-end border-t border-[#f0e2d8] pt-4">
                           <button
@@ -327,7 +306,6 @@ export default function MyOrdersPage() {
                 </p>
               </div>
             </div>
-
             <div className="mt-4">
               <label className="mb-1.5 block text-xs font-medium text-neutral-600">
                 Reason for cancellation <span className="text-neutral-400">(optional)</span>
@@ -336,17 +314,15 @@ export default function MyOrdersPage() {
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 rows={3}
-                placeholder="Let us know why you're cancelling…"
+                placeholder="Let us know why you&apos;re cancelling…"
                 className="w-full resize-none rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-800 outline-none focus:border-[#c9744e] focus:ring-1 focus:ring-[#c9744e]"
               />
             </div>
-
             {cancelError && (
               <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600">
                 {cancelError}
               </p>
             )}
-
             <div className="mt-5 flex justify-end gap-3">
               <button
                 onClick={() => setCancelTarget(null)}

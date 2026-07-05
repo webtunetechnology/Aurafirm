@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Lock, Phone, Eye, EyeOff, Leaf, ShieldCheck, FlaskConical, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { normalizePhone } from "@/lib/phone"
@@ -15,7 +14,6 @@ const brandValues = [
 ]
 
 export default function CustomerLoginPage() {
-  const router = useRouter()
   const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
   const [showPass, setShowPass] = useState(false)
@@ -31,15 +29,16 @@ export default function CustomerLoginPage() {
     const fakeEmail = `${digits}@aurafirm.customer`
     const { error: err } = await supabase.auth.signInWithPassword({
       email: fakeEmail,
-      password: digits,
+      password: digits,   // password is always the 10-digit normalized phone number
     })
     setLoading(false)
     if (err) {
       setError("Invalid mobile number or password. Please try again.")
       return
     }
-    router.push("/account/orders")
-    router.refresh()
+    // Hard navigate so the server reads the freshly-written session cookie.
+    // router.push() alone does a client transition that can miss the cookie.
+    window.location.href = "/account/orders"
   }
 
   return (

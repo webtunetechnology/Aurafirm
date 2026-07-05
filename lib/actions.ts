@@ -278,18 +278,26 @@ export async function finalizeRazorpayOrder(params: {
 // ─── Customer orders ───────────────────────────────────────────────────────────
 
 export async function getMyOrders() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return []
 
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*, order_items(*)')
-    .eq('customer_id', user.id)
-    .order('created_at', { ascending: false })
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, order_items(*)')
+      .eq('customer_id', user.id)
+      .order('created_at', { ascending: false })
 
-  if (error) throw error
-  return data
+    if (error) {
+      console.error('[v0] getMyOrders error:', error.message)
+      return []
+    }
+    return data ?? []
+  } catch (e) {
+    console.error('[v0] getMyOrders exception:', e)
+    return []
+  }
 }
 
 // Statuses at which a customer is still allowed to cancel their own order.

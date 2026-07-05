@@ -23,31 +23,7 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Protect admin routes
-  if (request.nextUrl.pathname.startsWith('/admin') &&
-      !request.nextUrl.pathname.startsWith('/admin/login')) {
-    if (!user) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/admin/login'
-      return NextResponse.redirect(url)
-    }
-    // Check admin flag in metadata
-    const isAdmin = user.user_metadata?.is_admin === true
-    if (!isAdmin) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/admin/login'
-      return NextResponse.redirect(url)
-    }
-  }
-
-  // Protect customer account routes
-  if (request.nextUrl.pathname.startsWith('/account') && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }

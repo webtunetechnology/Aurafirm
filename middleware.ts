@@ -11,6 +11,8 @@ export async function middleware(request: NextRequest) {
       cookies: {
         getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {
+          // Must mutate request cookies first, then rebuild the response so
+          // the refreshed session token is written back to the browser.
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
@@ -21,6 +23,8 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // getUser() validates the JWT and triggers a silent token refresh when needed.
+  // This is what keeps the session alive across page loads and refreshes.
   const { data: { user } } = await supabase.auth.getUser()
 
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
@@ -49,7 +53,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/account/:path*'],
+  // Run on every route so Supabase can silently refresh the session token and
+  // write the updated cookie back to the browser on each request.
+  // Static assets, _next internals, and favicon are excluded for performance.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
 
-// Note: /admin-login is intentionally NOT in the matcher — it must stay unprotected.
+// Note: /admin-login is intentionally NOT protected — handled inside the middleware logic above.
