@@ -20,22 +20,34 @@ export default function UserMenu({ iconClassName = "h-4 w-4" }: { iconClassName?
   useEffect(() => {
     const supabase = createClient()
 
+    // Safety net: if auth check takes > 3 s (network slow / offline), show
+    // the login link rather than a dead pulsing icon the user can't click.
+    const fallback = setTimeout(() => {
+      setAuth((prev) => prev.status === "loading" ? { status: "guest" } : prev)
+    }, 3000)
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setAuth({ status: "guest" }); return }
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single()
-      setAuth({ status: "user", name: profile?.full_name ?? "Customer" })
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error || !user) { setAuth({ status: "guest" }); return }
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single()
+        setAuth({ status: "user", name: profile?.full_name ?? "Customer" })
+      } catch {
+        setAuth({ status: "guest" })
+      } finally {
+        clearTimeout(fallback)
+      }
     }
 
     load()
 
-    // Keep in sync when session changes (login/logout in another tab)
+    // Keep in sync when session changes (login / logout in another tab)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(() => load())
-    return () => subscription.unsubscribe()
+    return () => { subscription.unsubscribe(); clearTimeout(fallback) }
   }, [])
 
   // Close on outside click
@@ -65,12 +77,13 @@ export default function UserMenu({ iconClassName = "h-4 w-4" }: { iconClassName?
     )
   }
 
-  // Loading — skeleton icon
+  // Loading — show a clickable link (not a dead div) so the user can always
+  // reach the login page even while the auth check is in flight.
   if (auth.status === "loading") {
     return (
-      <div className="animate-pulse">
-        <User className={`${iconClassName} opacity-30`} />
-      </div>
+      <Link href="/account/login" aria-label="My Account" className="animate-pulse transition-colors hover:text-[#b86244]">
+        <User className={`${iconClassName} opacity-40`} />
+      </Link>
     )
   }
 
