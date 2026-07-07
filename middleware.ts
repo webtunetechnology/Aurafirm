@@ -27,14 +27,16 @@ export async function middleware(request: NextRequest) {
   // This is what keeps the session alive across page loads and refreshes.
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
-  const isCustomerLogin = request.nextUrl.pathname === '/account/login'
+  const pathname = request.nextUrl.pathname
+  // /admin-login must never be caught in the admin guard — doing so creates
+  // an infinite redirect loop (unauthenticated → /admin-login → redirect → …)
+  const isAdminRoute = pathname.startsWith('/admin') && pathname !== '/admin-login'
+  const isCustomerLogin = pathname === '/account/login'
 
   if (isAdminRoute) {
     if (!user) {
       return NextResponse.redirect(new URL('/admin-login', request.url))
     }
-    // Use user_metadata to avoid RLS issues with anon key
     const isAdmin = user.user_metadata?.is_admin === true
     if (!isAdmin) {
       return NextResponse.redirect(new URL('/admin-login', request.url))
