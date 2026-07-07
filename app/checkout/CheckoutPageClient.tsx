@@ -207,22 +207,20 @@ export default function CheckoutPage() {
 
       if (!res.ok) throw new Error(data.error || "Failed to create order")
 
-      // Persist the order as PENDING *before* opening Razorpay. Razorpay may
-      // complete via a full-page redirect (redirect mode) rather than the
-      // in-page handler, in which case all client state (cart, address) is
-      // gone. By saving first and finalizing in the server-side callback route
-      // keyed on razorpay_order_id, the flow works in BOTH modes and never
-      // lands on a 404 / "This page couldn't load" screen after payment.
+      // Encode the full order payload in the callback URL so the server can
+      // create the order ONLY after the payment signature is verified.
+      // This way a cancelled or failed payment never creates an order record.
       const shippingAddr = shipDifferent ? shipping : {
         fullName: billing.fullName, address: billing.address,
         apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin,
       }
-      await createOrder({
+      // btoa() only handles Latin-1; use TextEncoder for safe UTF-8 → base64
+      const orderJson = JSON.stringify({
         customerName: billing.fullName,
         customerEmail: billing.email,
         customerPhone: `+91${billing.phone}`,
         billingAddress: { address: billing.address, apt: billing.apt, city: billing.city, state: billing.state, pin: billing.pin },
-        shippingAddress: shippingAddr as Record<string, string>,
+        shippingAddress: shippingAddr,
         subtotal,
         discount,
         shippingCost,
@@ -230,8 +228,6 @@ export default function CheckoutPage() {
         grandTotal,
         couponCode: couponApplied ? coupon : undefined,
         paymentMethod: "razorpay",
-        paymentStatus: "pending",
-        razorpayOrderId: data.orderId,
         deliveryMethod: delivery,
         items: items.map((i) => ({
           productName: i.name,
@@ -241,10 +237,10 @@ export default function CheckoutPage() {
           total: i.price * i.quantity,
         })),
       })
+      const orderPayload = btoa(
+        String.fromCharCode(...new TextEncoder().encode(orderJson))
+      )
 
-      // Open Razorpay. `callback_url` + `redirect: true` routes the result
-      // through our server callback, which verifies the signature and redirects
-      // to the success page.
       const options = {
         key: data.keyId,
         amount: data.amount,
@@ -259,7 +255,7 @@ export default function CheckoutPage() {
           contact: billing.phone,
         },
         theme: { color: "#c9744e" },
-        callback_url: `${window.location.origin}/api/razorpay/callback`,
+        callback_url: `${window.location.origin}/api/razorpay/callback?d=${encodeURIComponent(orderPayload)}`,
         redirect: true,
         modal: {
           ondismiss: () => setPlacing(false),

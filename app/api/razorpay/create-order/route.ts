@@ -27,7 +27,11 @@ export async function POST(req: NextRequest) {
       keyId: process.env.RAZORPAY_KEY_ID,
     })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to create order"
-    return NextResponse.json({ error: message }, { status: 500 })
+    // Surface the real Razorpay error (e.g. 401 bad credentials, amount issues)
+    const razorpayErr = err as { statusCode?: number; error?: { description?: string } }
+    const message = razorpayErr?.error?.description
+      || (err instanceof Error ? err.message : "Failed to create Razorpay order")
+    console.error("[v0] create-order error:", JSON.stringify(err))
+    return NextResponse.json({ error: message }, { status: razorpayErr?.statusCode ?? 500 })
   }
 }
