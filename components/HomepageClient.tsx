@@ -130,8 +130,6 @@ const trustBadges = [
   { title: "for Indian Skin", sub: "Formulated for all tones" },
   { title: "Vegan - 100%", sub: "cruelty-free plant-powered" },
   { title: "Dermat Tested", sub: "Safe for sensitive skin" },
-  { title: "for Indian Skin", sub: "Formulated for all tones" },
-  { title: "Vegan - 100%", sub: "cruelty-free plant-powered" },
 ]
 
 const heroProducts = [
@@ -631,7 +629,7 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
 
       {/* Bottom trust banner */}
       <section className="mt-12 bg-[#8a4a32] py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 overflow-x-auto px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-12 px-6">
           {trustBadges.map((b, i) => (
             <div key={i} className="flex shrink-0 items-center gap-3 text-white">
               <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40">
