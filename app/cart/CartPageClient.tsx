@@ -401,9 +401,9 @@ export default function CartPage({ suggestedProducts = [] }: { suggestedProducts
       {/* Footer */}
       <footer className="bg-[#faf5f3] px-4 py-12 md:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
             {/* Brand column */}
-            <div>
+            <div className="col-span-2 lg:col-span-1">
               <Link href="/">
                 <Image
                   src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
