@@ -151,13 +151,7 @@ export default function OurStoryClient({
                 </div>
               )}
             </div>
-            {/* Founder quote card */}
-            <div className="absolute -bottom-6 -left-4 max-w-xs rounded-2xl bg-white p-5 shadow-xl">
-              <p className="text-sm leading-relaxed text-neutral-700 before:mr-1 before:content-['\u201C'] after:ml-1 after:content-['\u201D']">
-                {content.founder_quote}
-              </p>
-              <p className="mt-3 text-xs font-bold text-[#8a4a32]">{content.founder_name}</p>
-            </div>
+
           </div>
         </div>
       </section>
