@@ -45,8 +45,6 @@ const brandBar = [
   { label: "for Indian Skin", sub: "Formulated in India" },
   { label: "Vegan \u2022 100%", sub: "cruelty free & plant powered" },
   { label: "Dermatest Tested", sub: "Safe for sensitive skin" },
-  { label: "for Indian Skin", sub: "Formulated in India" },
-  { label: "Vegan \u2022 100%", sub: "cruelty free & plant powered" },
 ]
 
 const trustBadges = [
