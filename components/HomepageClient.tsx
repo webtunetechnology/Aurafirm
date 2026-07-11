@@ -191,7 +191,9 @@ interface DBProduct {
   slug?: string | null
 }
 
-export default function LumoraLanding({ products = [] }: { products: DBProduct[] }) {
+type PromoBanner = { id: string; image_url: string; alt_text: string; link_url?: string | null; sort_order: number }
+
+export default function LumoraLanding({ products = [], promoBanners = [] }: { products: DBProduct[]; promoBanners: PromoBanner[] }) {
   const { addItem, itemCount } = useCart()
   const sliderRef = useRef<HTMLDivElement>(null)
 
@@ -433,31 +435,31 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
         </div>
       </section>
 
-      {/* Promo banners */}
-      <section className="mx-auto max-w-7xl px-6 pb-4">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {[
-            {
-              img: "https://res.cloudinary.com/df01whs60/image/upload/v1782242015/ChatGPT_Image_Jun_24_2026_12_43_01_AM_tjs32q.png",
-              alt: "Special skincare offer",
-            },
-            {
-              img: "https://res.cloudinary.com/df01whs60/image/upload/v1782242144/ChatGPT_Image_Jun_24_2026_12_45_26_AM_kmjy43.png",
-              alt: "Special serum offer",
-            },
-          ].map((banner, i) => (
-            <div key={i} className="overflow-hidden rounded-xl">
-              <Image
-                src={banner.img || "/placeholder.svg"}
-                alt={banner.alt}
-                width={800}
-                height={450}
-                className="h-auto w-full object-contain"
-              />
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Promo banners — controlled via admin panel */}
+      {promoBanners.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pb-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {promoBanners.map((banner) => {
+              const img = (
+                <div className="overflow-hidden rounded-xl">
+                  <Image
+                    src={banner.image_url}
+                    alt={banner.alt_text || "Promotional offer"}
+                    width={800}
+                    height={450}
+                    className="h-auto w-full object-contain"
+                  />
+                </div>
+              )
+              return banner.link_url ? (
+                <Link key={banner.id} href={banner.link_url}>{img}</Link>
+              ) : (
+                <div key={banner.id}>{img}</div>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Beauty That Loves Your Skin Back */}
       <section className="mx-auto max-w-7xl px-6 py-8">

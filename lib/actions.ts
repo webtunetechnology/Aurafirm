@@ -1093,3 +1093,52 @@ export async function adminDeleteReview(id: string) {
   revalidatePath('/admin/reviews')
   revalidatePath('/product')
 }
+
+// ─── Promo Banners ────────────────────────────────────────────────────────────
+
+export async function getPromoBanners() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('promo_banners')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+  if (error) { console.error('[v0] getPromoBanners:', error.message); return [] }
+  return data ?? []
+}
+
+export async function adminGetPromoBanners() {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('promo_banners')
+    .select('*')
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function adminUpsertPromoBanner(banner: {
+  id?: string
+  sort_order: number
+  image_url: string
+  alt_text: string
+  link_url?: string
+  is_active: boolean
+}) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('promo_banners').upsert({
+    ...banner,
+    updated_at: new Date().toISOString(),
+  })
+  if (error) throw error
+  revalidatePath('/')
+  revalidatePath('/admin/banners')
+}
+
+export async function adminDeletePromoBanner(id: string) {
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('promo_banners').delete().eq('id', id)
+  if (error) throw error
+  revalidatePath('/')
+  revalidatePath('/admin/banners')
+}
