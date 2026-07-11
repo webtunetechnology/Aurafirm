@@ -151,7 +151,11 @@ export default function OurStoryClient({
                 </div>
               )}
             </div>
-
+            {content.founder_name && (
+              <p className="mt-4 text-center text-sm font-semibold text-[#8a4a32]">
+                {content.founder_name}
+              </p>
+            )}
           </div>
         </div>
       </section>
