@@ -252,10 +252,10 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
         <div className="pointer-events-none absolute right-[8%] top-1/4 h-[420px] w-[480px] rounded-full bg-[#f6d9c9]/50 blur-3xl" />
 
         {/* Hero content */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-6 pb-20 pt-8 lg:grid-cols-2">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-6 px-6 pb-12 pt-8 lg:grid-cols-2 lg:gap-8 lg:pb-20">
           {/* Left text */}
-          <div>
-            <h1 className="font-sans text-6xl font-extrabold leading-[0.92] tracking-tight sm:text-7xl xl:text-8xl">
+          <div className="text-center lg:text-left">
+            <h1 className="font-sans text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl xl:text-8xl">
               <span className="block">
                 <span className="text-neutral-800">Your </span>
                 <span className="text-[#e3a985]">Skin</span>
@@ -266,15 +266,14 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
               </span>
             </h1>
 
-            <p className="mt-6 max-w-md text-sm leading-relaxed text-neutral-700">
+            <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-neutral-700 lg:mx-0">
               Where science meets self-care. Premium, science-backed formulations
-              <br />
               for radiant skin and complete wellness — every single day.
             </p>
 
             <Link
               href="#shop-section"
-              className="mt-8 inline-block rounded-md bg-[#c9744e] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#b86244]"
+              className="mt-6 inline-block rounded-md bg-[#c9744e] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#b86244]"
             >
               Explore Our Products
             </Link>
@@ -286,12 +285,12 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
             <button
               onClick={prevHero}
               aria-label="Previous product"
-              className="absolute left-0 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#c9744e] shadow-md backdrop-blur transition-colors hover:bg-[#c9744e] hover:text-white"
+              className="absolute left-0 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#c9744e] shadow-md backdrop-blur transition-colors hover:bg-[#c9744e] hover:text-white sm:h-10 sm:w-10"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
-            <div className="relative flex h-[380px] w-[380px] items-center justify-center rounded-full border border-[#e3a985]/60">
+            <div className="relative flex h-[260px] w-[260px] items-center justify-center rounded-full border border-[#e3a985]/60 sm:h-[320px] sm:w-[320px] lg:h-[380px] lg:w-[380px]">
               {/* Product image */}
               <Image
                 key={heroProduct.img}
@@ -300,14 +299,14 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
                 width={300}
                 height={300}
                 priority
-                className="h-[320px] w-auto animate-in fade-in zoom-in-95 object-contain mix-blend-multiply duration-500"
+                className="h-[220px] w-auto animate-in fade-in zoom-in-95 object-contain mix-blend-multiply duration-500 sm:h-[270px] lg:h-[320px]"
               />
 
-              {/* Labels */}
-              <span className="absolute -right-8 top-12 max-w-[120px] whitespace-pre-line text-lg leading-tight text-neutral-700">
+              {/* Labels — hidden on small screens to avoid overflow */}
+              <span className="absolute -right-6 top-10 hidden max-w-[110px] whitespace-pre-line text-base leading-tight text-neutral-700 sm:block lg:-right-8 lg:top-12 lg:max-w-[120px] lg:text-lg">
                 {heroProduct.label1}
               </span>
-              <span className="absolute -left-6 bottom-20 max-w-[120px] whitespace-pre-line text-right text-lg leading-tight text-neutral-700">
+              <span className="absolute -left-4 bottom-16 hidden max-w-[110px] whitespace-pre-line text-right text-base leading-tight text-neutral-700 sm:block lg:-left-6 lg:bottom-20 lg:max-w-[120px] lg:text-lg">
                 {heroProduct.label2}
               </span>
             </div>
@@ -316,13 +315,13 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
             <button
               onClick={nextHero}
               aria-label="Next product"
-              className="absolute right-0 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#c9744e] shadow-md backdrop-blur transition-colors hover:bg-[#c9744e] hover:text-white"
+              className="absolute right-0 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#c9744e] shadow-md backdrop-blur transition-colors hover:bg-[#c9744e] hover:text-white sm:h-10 sm:w-10"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
             {/* Dots */}
-            <div className="mt-6 flex items-center gap-2">
+            <div className="mt-5 flex items-center gap-2">
               {heroProducts.map((_, i) => (
                 <button
                   key={i}
@@ -339,19 +338,19 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
       </section>
 
       {/* Feature boxes */}
-      <section className="relative z-20 mx-auto -mt-10 max-w-7xl px-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="relative z-20 mx-auto -mt-6 max-w-7xl px-4 sm:px-6 lg:-mt-10">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {heroFeatures.map((f) => (
             <div
               key={f.title}
-              className="flex items-center gap-4 rounded-2xl border border-[#f0d8c8] bg-white px-5 py-4 shadow-sm transition-shadow hover:shadow-md"
+              className="flex flex-col items-center gap-2 rounded-2xl border border-[#f0d8c8] bg-white px-3 py-3 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:gap-4 sm:px-5 sm:py-4"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#fbede5] text-[#c9744e]">
-                <f.icon className="h-6 w-6" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fbede5] text-[#c9744e] sm:h-12 sm:w-12">
+                <f.icon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <div>
-                <p className="text-sm font-bold leading-tight text-neutral-800">{f.title}</p>
-                <p className="mt-0.5 text-xs leading-snug text-neutral-500">{f.desc}</p>
+              <div className="text-center sm:text-left">
+                <p className="text-xs font-bold leading-tight text-neutral-800 sm:text-sm">{f.title}</p>
+                <p className="mt-0.5 text-[10px] leading-snug text-neutral-500 sm:text-xs">{f.desc}</p>
               </div>
             </div>
           ))}
@@ -359,7 +358,7 @@ export default function LumoraLanding({ products = [], promoBanners = [] }: { pr
       </section>
 
       {/* Shop Our Glow Heroes */}
-      <section id="shop-section" className="mx-auto max-w-7xl px-6 py-16">
+      <section id="shop-section" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16">
         <h2 className="font-sans text-3xl font-extrabold tracking-tight text-neutral-700 sm:text-4xl">
 Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</span> Heroes
         </h2>
@@ -447,7 +446,7 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
 
       {/* Promo banners — controlled via admin panel */}
       {promoBanners.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 pb-4">
+        <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {promoBanners.map((banner) => {
               const img = (
@@ -472,9 +471,9 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
       )}
 
       {/* Beauty That Loves Your Skin Back */}
-      <section className="mx-auto max-w-7xl px-6 py-8">
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#fbe4d6] via-[#fceee5] to-[#f6d9c9] px-6 py-14 text-center">
-          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-neutral-800 sm:text-5xl text-balance">
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#fbe4d6] via-[#fceee5] to-[#f6d9c9] px-5 py-10 text-center sm:px-6 sm:py-14">
+          <h2 className="font-sans text-2xl font-extrabold tracking-tight text-neutral-800 text-balance sm:text-3xl md:text-5xl">
             Where Beauty Meets <span className="text-[#d4855f]">Wellness</span>
           </h2>
           <p className="mt-4 text-sm italic text-neutral-600">
@@ -504,15 +503,15 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
       </section>
 
       {/* Testimonials */}
-      <section className="relative mx-auto max-w-5xl px-6 py-20 text-center">
+      <section className="relative mx-auto max-w-5xl px-4 py-12 text-center sm:px-6 sm:py-20">
         <p className="text-sm font-semibold text-neutral-700">Testimonials</p>
-        <h2 className="mt-2 font-sans text-3xl font-extrabold tracking-tight sm:text-5xl text-balance">
+        <h2 className="mt-2 font-sans text-2xl font-extrabold tracking-tight text-balance sm:text-3xl md:text-5xl">
           <span className="block text-neutral-800">Testimonials from</span>
           <span className="block text-[#c79a4b]">Our Loyal Customers</span>
         </h2>
 
-        {/* Avatar row */}
-        <div className="mt-10 flex items-center justify-center gap-4">
+        {/* Avatar row — scrollable on mobile */}
+        <div className="mt-8 flex items-center justify-start gap-3 overflow-x-auto pb-1 sm:justify-center sm:gap-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {testimonials.map((t, i) => {
             const isActive = i === active
             return (
@@ -522,8 +521,8 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
                 aria-label={`View testimonial from ${t.name}`}
                 className={`relative shrink-0 overflow-hidden rounded-full ring-offset-2 transition-all duration-300 ${
                   isActive
-                    ? "h-24 w-24 ring-2 ring-[#c79a4b]"
-                    : "h-16 w-16 opacity-90 hover:opacity-100"
+                    ? "h-16 w-16 ring-2 ring-[#c79a4b] sm:h-24 sm:w-24"
+                    : "h-12 w-12 opacity-90 hover:opacity-100 sm:h-16 sm:w-16"
                 }`}
               >
                 <Image src={t.img || "/placeholder.svg"} alt={t.name} fill className="object-cover" />
@@ -533,42 +532,42 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
         </div>
 
         {/* Active testimonial with side arrows */}
-        <div className="relative mt-10">
+        <div className="relative mt-8 sm:mt-10">
           <button
             onClick={prevTestimonial}
             aria-label="Previous testimonial"
-            className="absolute left-0 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#c79a4b] text-white shadow-md transition-colors hover:bg-[#b3893d]"
+            className="absolute left-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#c79a4b] text-white shadow-md transition-colors hover:bg-[#b3893d] sm:h-12 sm:w-12"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
 
-          <div className="mx-auto max-w-2xl px-16">
-            <h3 className="font-sans text-xl font-bold text-neutral-800 sm:text-2xl text-balance">{current.title}</h3>
-            <p className="mt-4 text-sm leading-relaxed text-neutral-500 text-pretty">{current.quote}</p>
+          <div className="mx-auto max-w-2xl px-12 sm:px-16">
+            <h3 className="font-sans text-lg font-bold text-neutral-800 text-balance sm:text-xl md:text-2xl">{current.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-500 text-pretty">{current.quote}</p>
 
-            <div className="mt-6 flex items-center justify-center gap-1">
+            <div className="mt-5 flex items-center justify-center gap-1">
               {Array.from({ length: 5 }).map((_, s) => (
-                <Star key={s} className="h-5 w-5 fill-[#f5b301] text-[#f5b301]" />
+                <Star key={s} className="h-4 w-4 fill-[#f5b301] text-[#f5b301] sm:h-5 sm:w-5" />
               ))}
               <span className="ml-2 text-sm font-semibold text-neutral-600">{current.rating}</span>
             </div>
 
-            <p className="mt-6 font-sans font-bold text-neutral-800">{current.name}</p>
+            <p className="mt-5 font-sans font-bold text-neutral-800">{current.name}</p>
             <p className="text-xs text-neutral-500">{current.role}</p>
           </div>
 
           <button
             onClick={nextTestimonial}
             aria-label="Next testimonial"
-            className="absolute right-0 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[#8a4a32] text-white shadow-md transition-colors hover:bg-[#6f3a26]"
+            className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-[#8a4a32] text-white shadow-md transition-colors hover:bg-[#6f3a26] sm:h-12 sm:w-12"
           >
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
       </section>
 
       {/* FAQs */}
-      <section className="relative mx-auto max-w-6xl px-6 py-16">
+      <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-16">
         <p className="text-center text-xs font-semibold tracking-wide text-neutral-400">FAQs</p>
         <h2 className="text-center font-sans text-3xl font-extrabold tracking-tight text-neutral-800 sm:text-4xl">
           Question? <span className="text-[#c79a4b]">Look</span> here.
@@ -641,7 +640,7 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
 
       {/* Bottom trust banner */}
       <section className="mt-12 bg-[#8a4a32] py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-12 px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-6 px-4 sm:gap-12 sm:px-6">
           {trustBadges.map((b, i) => (
             <div key={i} className="flex shrink-0 items-center gap-3 text-white">
               <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40">
@@ -657,11 +656,11 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#faf5f3] px-6 pb-8 pt-16">
+      <footer className="bg-[#faf5f3] px-4 pb-8 pt-12 sm:px-6 sm:pt-16">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
             {/* Brand column */}
-            <div className="lg:col-span-2">
+            <div className="col-span-2 lg:col-span-2">
               <Link href="/">
                 <Image
                   src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"

@@ -448,14 +448,14 @@ export default function ProductPageClient({
 
       {/* Trust bar */}
       <div className="mt-8 bg-[#8B4513] text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-12 px-4 py-5 md:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-5 px-4 py-5 sm:gap-12 md:px-6">
           {[
             { title: "for Indian Skin", sub: "Formulated for all tones" },
             { title: "Vegan - 100%",   sub: "cruelty-free plant-powered" },
             { title: "Dermat Tested",  sub: "Safe for sensitive skin" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/40">
                 <Heart className="h-4 w-4" />
               </span>
               <span>
@@ -470,8 +470,8 @@ export default function ProductPageClient({
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white text-gray-700">
         <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
-            <div className="lg:col-span-2 lg:pr-8">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+            <div className="col-span-2 lg:col-span-2 lg:pr-8">
               <img
                 src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
                 alt="AURAFIRM logo"

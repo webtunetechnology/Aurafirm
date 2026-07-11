@@ -834,9 +834,9 @@ function RadioDot({ active }: { active: boolean }) {
 function BrandBar() {
   return (
     <div className="bg-[#8B4513]">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-white/20 px-4 py-0 sm:grid-cols-5">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-4 px-4 py-4 sm:gap-0 sm:divide-x sm:divide-white/20 md:grid md:grid-cols-3 lg:grid-cols-5">
         {brandBar.map((b, i) => (
-          <div key={i} className="flex items-center gap-2 px-4 py-4">
+          <div key={i} className="flex items-center gap-2 px-4 py-2 sm:py-4">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/40">
               <Leaf className="h-3.5 w-3.5 text-white/80" />
             </div>
@@ -855,9 +855,9 @@ function Footer() {
   return (
     <footer className="bg-[#faf5f3]">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
           {/* Brand col */}
-          <div>
+          <div className="col-span-2 lg:col-span-1">
             <Link href="/">
               <Image
                 src="https://res.cloudinary.com/df01whs60/image/upload/v1782242359/AURAFIRM_logo_PNG_160x_drciiz.avif"
