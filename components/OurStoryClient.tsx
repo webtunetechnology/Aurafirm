@@ -240,23 +240,23 @@ export default function OurStoryClient({
 
       {/* CTA banner */}
       <section className="mx-auto max-w-7xl px-6 pb-20">
-        <div className="overflow-hidden rounded-3xl bg-[#2c1a12] px-8 py-14 text-center">
+        <div className="overflow-hidden rounded-3xl bg-[#9c4a2b] px-8 py-14 text-center">
           <h2 className="text-balance text-3xl font-extrabold text-white sm:text-4xl">
             Ready to Experience AURAFIRM?
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-pretty text-base text-[#d4a896]">
+          <p className="mx-auto mt-4 max-w-md text-pretty text-base text-white/75">
             Discover our science-backed skincare range, crafted with clean ingredients and real results.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/shop"
-              className="rounded-full bg-[#c9744e] px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-[#b86244]"
+              className="rounded-full bg-white px-7 py-3 text-sm font-bold text-[#9c4a2b] transition-colors hover:bg-white/90"
             >
               Shop Now
             </Link>
             <Link
               href="/contact"
-              className="rounded-full border border-[#c9744e] px-7 py-3 text-sm font-bold text-[#c9744e] transition-colors hover:bg-white/10"
+              className="rounded-full border border-white/60 px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
             >
               Get in Touch
             </Link>
