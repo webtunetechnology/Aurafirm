@@ -230,10 +230,15 @@ export default function ProductPageClient({
 
             {/* Price */}
             <div className="mt-5">
-              <div className="flex items-baseline gap-3">
+              <div className="flex flex-wrap items-baseline gap-3">
                 <p className="text-3xl font-bold text-gray-900">&#8377;{product.price.toLocaleString("en-IN")}</p>
                 {product.original_price && product.original_price > product.price && (
-                  <p className="text-base text-gray-400 line-through">&#8377;{product.original_price.toLocaleString("en-IN")}</p>
+                  <>
+                    <p className="text-base text-gray-400 line-through">&#8377;{product.original_price.toLocaleString("en-IN")}</p>
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
+                      {Math.round((1 - product.price / product.original_price) * 100)}% OFF
+                    </span>
+                  </>
                 )}
               </div>
               <p className="mt-1 text-xs text-gray-500">(MRP. Inclusive of all taxes)</p>
@@ -443,13 +448,11 @@ export default function ProductPageClient({
 
       {/* Trust bar */}
       <div className="mt-8 bg-[#8B4513] text-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-y-4 px-4 py-5 md:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-12 px-4 py-5 md:px-6">
           {[
             { title: "for Indian Skin", sub: "Formulated for all tones" },
             { title: "Vegan - 100%",   sub: "cruelty-free plant-powered" },
             { title: "Dermat Tested",  sub: "Safe for sensitive skin" },
-            { title: "for Indian Skin",sub: "Formulated for all tones" },
-            { title: "Vegan - 100%",   sub: "cruelty-free plant-powered" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/40">

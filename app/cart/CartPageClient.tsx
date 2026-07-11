@@ -383,8 +383,6 @@ export default function CartPage({ suggestedProducts = [] }: { suggestedProducts
               { icon: Heart, title: "for Indian Skin", sub: "Formulated in India" },
               { icon: Leaf, title: "Vegan \u2022 100%", sub: "cruelty free & plant powered" },
               { icon: ShieldCheck, title: "Dermatest Tested", sub: "Safe for sensitive skin" },
-              { icon: Heart, title: "for Indian Skin", sub: "Formulated in India" },
-              { icon: Leaf, title: "Vegan \u2022 100%", sub: "cruelty free & plant powered" },
             ].map((badge, i) => (
               <div key={i} className="flex items-center gap-3 text-white">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/30">

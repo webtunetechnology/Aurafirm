@@ -151,13 +151,11 @@ export default function OurStoryClient({
                 </div>
               )}
             </div>
-            {/* Founder quote card */}
-            <div className="absolute -bottom-6 -left-4 max-w-xs rounded-2xl bg-white p-5 shadow-xl">
-              <p className="text-sm leading-relaxed text-neutral-700 before:mr-1 before:content-['\u201C'] after:ml-1 after:content-['\u201D']">
-                {content.founder_quote}
+            {content.founder_name && (
+              <p className="mt-4 text-center text-sm font-semibold text-[#8a4a32]">
+                {content.founder_name}
               </p>
-              <p className="mt-3 text-xs font-bold text-[#8a4a32]">{content.founder_name}</p>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -242,23 +240,23 @@ export default function OurStoryClient({
 
       {/* CTA banner */}
       <section className="mx-auto max-w-7xl px-6 pb-20">
-        <div className="overflow-hidden rounded-3xl bg-[#fdf6f2] px-8 py-14 text-center">
-          <h2 className="text-balance text-3xl font-extrabold text-neutral-900 sm:text-4xl">
+        <div className="overflow-hidden rounded-3xl bg-[#9c4a2b] px-8 py-14 text-center">
+          <h2 className="text-balance text-3xl font-extrabold text-white sm:text-4xl">
             Ready to Experience AURAFIRM?
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-pretty text-base text-neutral-600">
+          <p className="mx-auto mt-4 max-w-md text-pretty text-base text-white/75">
             Discover our science-backed skincare range, crafted with clean ingredients and real results.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/shop"
-              className="rounded-full bg-[#8a4a32] px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-[#7a3c10]"
+              className="rounded-full bg-white px-7 py-3 text-sm font-bold text-[#9c4a2b] transition-colors hover:bg-white/90"
             >
               Shop Now
             </Link>
             <Link
               href="/contact"
-              className="rounded-full border border-[#c9744e] px-7 py-3 text-sm font-bold text-[#c9744e] transition-colors hover:bg-[#fdf0e8]"
+              className="rounded-full border border-white/60 px-7 py-3 text-sm font-bold text-white transition-colors hover:bg-white/10"
             >
               Get in Touch
             </Link>

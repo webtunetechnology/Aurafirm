@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import HomepageClient from '@/components/HomepageClient'
+import { getPromoBanners } from '@/lib/actions'
 
 export const metadata: Metadata = {
   title: 'AURAFIRM — Where Science Meets Self-Care',
@@ -18,11 +19,10 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const supabase = await createClient()
-  const { data: products } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_active', true)
-    .order('created_at', { ascending: true })
+  const [productsResult, banners] = await Promise.all([
+    supabase.from('products').select('*').eq('is_active', true).order('created_at', { ascending: true }),
+    getPromoBanners(),
+  ])
 
-  return <HomepageClient products={products ?? []} />
+  return <HomepageClient products={productsResult.data ?? []} promoBanners={banners} />
 }

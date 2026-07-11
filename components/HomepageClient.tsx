@@ -130,8 +130,6 @@ const trustBadges = [
   { title: "for Indian Skin", sub: "Formulated for all tones" },
   { title: "Vegan - 100%", sub: "cruelty-free plant-powered" },
   { title: "Dermat Tested", sub: "Safe for sensitive skin" },
-  { title: "for Indian Skin", sub: "Formulated for all tones" },
-  { title: "Vegan - 100%", sub: "cruelty-free plant-powered" },
 ]
 
 const heroProducts = [
@@ -193,7 +191,9 @@ interface DBProduct {
   slug?: string | null
 }
 
-export default function LumoraLanding({ products = [] }: { products: DBProduct[] }) {
+type PromoBanner = { id: string; image_url: string; alt_text: string; link_url?: string | null; sort_order: number }
+
+export default function LumoraLanding({ products = [], promoBanners = [] }: { products: DBProduct[]; promoBanners: PromoBanner[] }) {
   const { addItem, itemCount } = useCart()
   const sliderRef = useRef<HTMLDivElement>(null)
 
@@ -395,7 +395,17 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
                     />
                   </div>
                   <p className="mt-3 text-sm font-medium text-neutral-700 group-hover:text-[#c9744e]">{p.name}</p>
-                  <p className="text-sm text-neutral-500">{`\u20B9${p.price.toLocaleString("en-IN")}`}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-neutral-900">{`\u20B9${p.price.toLocaleString("en-IN")}`}</span>
+                    {p.original_price && p.original_price > p.price && (
+                      <>
+                        <span className="text-xs text-neutral-400 line-through">{`\u20B9${p.original_price.toLocaleString("en-IN")}`}</span>
+                        <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-bold text-green-700">
+                          {Math.round((1 - p.price / p.original_price) * 100)}% OFF
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </Link>
                 <div className="mt-2 flex items-center gap-2">
                   <button
@@ -435,31 +445,31 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
         </div>
       </section>
 
-      {/* Promo banners */}
-      <section className="mx-auto max-w-7xl px-6 pb-4">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {[
-            {
-              img: "https://res.cloudinary.com/df01whs60/image/upload/v1782242015/ChatGPT_Image_Jun_24_2026_12_43_01_AM_tjs32q.png",
-              alt: "Special skincare offer",
-            },
-            {
-              img: "https://res.cloudinary.com/df01whs60/image/upload/v1782242144/ChatGPT_Image_Jun_24_2026_12_45_26_AM_kmjy43.png",
-              alt: "Special serum offer",
-            },
-          ].map((banner, i) => (
-            <div key={i} className="overflow-hidden rounded-xl">
-              <Image
-                src={banner.img || "/placeholder.svg"}
-                alt={banner.alt}
-                width={800}
-                height={450}
-                className="h-auto w-full object-contain"
-              />
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Promo banners — controlled via admin panel */}
+      {promoBanners.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pb-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {promoBanners.map((banner) => {
+              const img = (
+                <div className="overflow-hidden rounded-xl">
+                  <Image
+                    src={banner.image_url}
+                    alt={banner.alt_text || "Promotional offer"}
+                    width={800}
+                    height={450}
+                    className="h-auto w-full object-contain"
+                  />
+                </div>
+              )
+              return banner.link_url ? (
+                <Link key={banner.id} href={banner.link_url}>{img}</Link>
+              ) : (
+                <div key={banner.id}>{img}</div>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Beauty That Loves Your Skin Back */}
       <section className="mx-auto max-w-7xl px-6 py-8">
@@ -631,7 +641,7 @@ Shop <span className="border-b-4 border-[#e3a985] text-[#c9744e]">Our Wellness</
 
       {/* Bottom trust banner */}
       <section className="mt-12 bg-[#8a4a32] py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 overflow-x-auto px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-12 px-6">
           {trustBadges.map((b, i) => (
             <div key={i} className="flex shrink-0 items-center gap-3 text-white">
               <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40">
