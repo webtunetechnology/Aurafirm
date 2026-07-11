@@ -18,12 +18,12 @@ import {
   Search,
   ShoppingCart,
   Heart,
-  Camera,
   AtSign,
   Play,
   MessageCircle,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 import UserMenu from "@/components/UserMenu"
 import ReviewSection from "@/components/ReviewSection"
 import type { Review } from "@/lib/actions"
@@ -488,7 +488,7 @@ export default function ProductPageClient({
                   aria-label="Instagram"
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-[#8B4513] text-white transition-opacity hover:opacity-80"
                 >
-                  <Camera className="h-4 w-4" />
+                  <InstagramIcon className="h-4 w-4" />
                 </a>
               </div>
             </div>

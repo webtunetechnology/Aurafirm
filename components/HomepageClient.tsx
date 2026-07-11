@@ -5,7 +5,6 @@ import Image from "next/image"
 import Link from "next/link"
 import {
   Heart,
-  Camera,
   ChevronLeft,
   ChevronRight,
   Star,
@@ -24,6 +23,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 
 const heroFeatures = [
   { icon: FlaskConical, title: "Science-Backed", desc: "Research-driven formulations" },
@@ -175,7 +175,7 @@ const footerColumns = [
 ]
 
 const socials = [
-  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: Camera },
+  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: InstagramIcon },
 ]
 
 interface DBProduct {

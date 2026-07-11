@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useCart } from "@/lib/cart-context"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 import {
   ShoppingBag,
   FlaskConical,
@@ -12,7 +13,6 @@ import {
   Award,
   ChevronDown,
   ArrowRight,
-  Camera,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -65,7 +65,7 @@ const footerColumns = [
 ]
 
 const socials = [
-  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: Camera },
+  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: InstagramIcon },
 ]
 
 export default function WhyAurafirmClient({ pillars }: { pillars: Pillar[] }) {

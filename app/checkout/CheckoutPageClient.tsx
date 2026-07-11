@@ -13,6 +13,7 @@ import {
   Tag,
   Package,
 } from "lucide-react"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 import { useCart } from "@/lib/cart-context"
 import { createOrder, validateCoupon } from "@/lib/actions"
 
@@ -872,17 +873,15 @@ function Footer() {
               and wellness solutions built on purity, innovation, and care.
             </p>
             <div className="mt-4 flex gap-3">
-              {["instagram", "facebook", "tiktok", "youtube", "pinterest"].map((s) => (
-                <a
-                  key={s}
-                  href="#"
-                  aria-label={s}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 text-neutral-500 transition-colors hover:border-[#c9744e] hover:text-[#c9744e]"
-                >
-                  <span className="sr-only">{s}</span>
-                  <span className="text-[10px] font-bold capitalize">{s[0].toUpperCase()}</span>
-                </a>
-              ))}
+              <a
+                href="https://www.instagram.com/aurafirm_"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 text-neutral-500 transition-colors hover:border-[#c9744e] hover:text-[#c9744e]"
+              >
+                <InstagramIcon className="h-3.5 w-3.5" />
+              </a>
             </div>
           </div>
           {/* Link cols */}

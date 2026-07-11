@@ -6,7 +6,6 @@ import Image from "next/image"
 import {
   ShoppingCart,
   Heart,
-  Camera,
   Minus,
   Plus,
   Trash2,
@@ -18,6 +17,7 @@ import {
   ArrowLeft,
 } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 
 type SuggestedProduct = {
   id: string
@@ -425,7 +425,7 @@ export default function CartPage({ suggestedProducts = [] }: { suggestedProducts
                   aria-label="Instagram"
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e3c8bb] text-neutral-600 transition-colors hover:border-[#c9744e] hover:text-[#c9744e]"
                 >
-                  <Camera className="h-3.5 w-3.5" />
+                  <InstagramIcon className="h-3.5 w-3.5" />
                 </a>
               </div>
             </div>

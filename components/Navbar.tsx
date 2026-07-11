@@ -8,10 +8,10 @@ import {
   ShoppingCart,
   Heart,
   Search,
-  Camera,
   Menu,
   X,
 } from "lucide-react"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 import { useCart } from "@/lib/cart-context"
 import UserMenu from "@/components/UserMenu"
 
@@ -72,7 +72,7 @@ export default function Navbar() {
           aria-label="Instagram"
           className="hidden items-center sm:flex text-white/80 hover:text-white transition-colors"
         >
-          <Camera className="h-3.5 w-3.5" />
+          <InstagramIcon className="h-3.5 w-3.5" />
         </a>
       </div>
 

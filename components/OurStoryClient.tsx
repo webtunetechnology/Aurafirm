@@ -18,8 +18,8 @@ import {
   Star,
   Zap,
   Sun,
-  Camera,
 } from "lucide-react"
+import InstagramIcon from "@/components/icons/InstagramIcon"
 
 
 const footerColumns = [
@@ -50,7 +50,7 @@ const footerColumns = [
 ]
 
 const socials = [
-  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: Camera },
+  { href: "https://www.instagram.com/aurafirm_", label: "Instagram", Icon: InstagramIcon },
 ]
 
 const iconMap: Record<string, React.ElementType> = {
