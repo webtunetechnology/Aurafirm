@@ -5,6 +5,7 @@ import './globals.css'
 import { CartProvider } from '@/lib/cart-context'
 import Navbar from '@/components/Navbar'
 import { Toaster } from 'sonner'
+import Script from 'next/script'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -30,6 +31,9 @@ export const metadata: Metadata = {
   authors: [{ name: 'AURAFIRM', url: BASE_URL }],
   creator: 'AURAFIRM',
   publisher: 'AURAFIRM',
+  verification: {
+    google: 'moDJnNUMZ73uLtseB0ZoCXRi7tRqBaAxNoo3qSryiaA',
+  },
   robots: {
     index: true,
     follow: true,
@@ -88,6 +92,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        {/* Google Analytics */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-W920LHV8T4"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-W920LHV8T4');
+            `,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
         <CartProvider>
           <Navbar />
